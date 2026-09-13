@@ -8,6 +8,7 @@ export interface Customer {
   email: string;
   phoneNumber: string;
   industry: string;
+  idNumber?: string | null;
 }
 
 export async function searchCustomers(search = ""): Promise<Customer[]> {

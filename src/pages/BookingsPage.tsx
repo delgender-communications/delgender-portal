@@ -116,7 +116,9 @@ export default function BookingsPage() {
                   >
                     <td>
                       <div style={{ fontWeight: 600 }}>{b.fullName}</div>
-                      <div className="text-muted text-small">{b.email}</div>
+                      <div className="text-muted text-small">
+                        {b.bookingReference} · {b.email}
+                      </div>
                     </td>
                     <td>{b.companyName}</td>
                     <td>

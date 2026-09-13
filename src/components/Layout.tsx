@@ -17,13 +17,22 @@ import { useAuth } from "../context/AuthContext";
 import { initials } from "../utils/format";
 import "./Layout.css";
 
-const NAV_ITEMS = [
+type NavItem = {
+  to: string;
+  label: string;
+  icon: typeof FiBarChart2;
+  end?: boolean;
+};
+
+const NAV_ITEMS: NavItem[] = [
   { to: "/", label: "Analytics", icon: FiBarChart2, end: true },
   { to: "/bookings", label: "Bookings", icon: FiCalendar },
   { to: "/invoices", label: "Invoices", icon: FiFileText },
 ];
 
-const ADMIN_ITEMS = [{ to: "/staff", label: "Staff", icon: FiUsers }];
+const ADMIN_ITEMS: NavItem[] = [
+  { to: "/staff", label: "Staff", icon: FiUsers },
+];
 
 export default function Layout() {
   const { staff, isAdmin, logout } = useAuth();

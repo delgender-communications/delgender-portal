@@ -10,6 +10,7 @@ import StatusBadge from "../components/StatusBadge";
 import InvoiceEditorModal from "../components/InvoiceEditorModal";
 import InvoiceDetailsModal from "../components/InvoiceDetailsModal";
 import { formatCurrency, formatDate } from "../utils/format";
+import { displayStatus, isOverdue } from "../utils/invoiceHelpers";
 import "./ListPage.css";
 
 const TABS: { label: string; value?: InvoiceStatus }[] = [
@@ -113,12 +114,14 @@ export default function InvoicesPage() {
                         {inv.customerCompany}
                       </div>
                     </td>
-                    <td>{formatDate(inv.dueDate)}</td>
+                    <td className={isOverdue(inv) ? "overdue-date" : undefined}>
+                      {formatDate(inv.dueDate)}
+                    </td>
                     <td style={{ fontWeight: 600 }}>
                       {formatCurrency(inv.totalAmount)}
                     </td>
                     <td>
-                      <StatusBadge status={inv.status} />
+                      <StatusBadge status={displayStatus(inv)} />
                     </td>
                   </tr>
                 ))

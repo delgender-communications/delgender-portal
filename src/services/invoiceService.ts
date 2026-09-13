@@ -137,3 +137,22 @@ export async function sendInvoice(
     throw new Error(extractErrorMessage(error, "Couldn't send that invoice."));
   }
 }
+
+export async function downloadInvoicePdf(
+  id: number,
+  fileName: string,
+): Promise<void> {
+  const response = await api.get(`/api/v1/invoices/${id}/pdf`, {
+    responseType: "blob",
+  });
+  const url = window.URL.createObjectURL(
+    new Blob([response.data], { type: "application/pdf" }),
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}

@@ -24,12 +24,14 @@ export const meetingTypeLabel = (m: MeetingType): string =>
 
 export interface Booking {
   id: number;
+  bookingReference: string;
   fullName: string;
   jobTitle?: string;
   companyName: string;
   email: string;
   phoneNumber: string;
   industry: string;
+  idNumber?: string | null;
   helpWith: string;
   problemDescription: string;
   sessionGoal: string;
