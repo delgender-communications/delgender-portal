@@ -21,8 +21,7 @@ interface Props {
 
 function defaultMessage(booking: Booking, action: string): string {
   if (action === BookingStatus.Confirmed) {
-    return `Hi ${booking.fullName},\n\nGreat news! Your consultation on ${formatDate(booking.date)} (${meetingTypeLabel(booking.meeting)}) is confirmed. 
-    We look forward to speaking with you.\n\nBest,\nDelgender Communications`;
+    return `Hi ${booking.fullName},\n\nGreat news! Your consultation on ${formatDate(booking.date)} (${meetingTypeLabel(booking.meeting)}) is confirmed. We look forward to speaking with you.\n\nBest,\nDelgender Communications`;
   }
   return `Hi ${booking.fullName},\n\nThank you for your interest in Delgender Communications. Unfortunately we're not able to accommodate this booking request.\n\nBest,\nDelgender Communications`;
 }
