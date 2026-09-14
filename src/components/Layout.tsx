@@ -15,6 +15,7 @@ import {
 // internal
 import { useAuth } from "../context/AuthContext";
 import { initials } from "../utils/format";
+import logo from "../assets/logo-mark.png";
 import "./Layout.css";
 
 type NavItem = {
@@ -56,7 +57,11 @@ export default function Layout() {
 
       <aside className={`sidebar ${mobileOpen ? "open" : ""}`}>
         <div className="sidebar-brand">
-          <div className="brand-mark">DC</div>
+          <img
+            src={logo}
+            alt="Delgender Communications"
+            className="brand-mark"
+          />
           <div>
             <div className="brand-name">Delgender</div>
             <div className="brand-sub">Communications</div>

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 // internal
 import * as authService from "../services/authService";
+import logo from "../assets/logo-mark.png";
 import "./AuthPages.css";
 
 export default function LoginPage() {
@@ -44,15 +45,21 @@ export default function LoginPage() {
     <div className="auth-screen">
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="brand-mark">DC</div>
+          <img
+            src={logo}
+            alt="Delgender Communications"
+            className="brand-mark"
+          />
           <div>
             <div className="brand-name">Delgender Communications</div>
             <div className="brand-sub">Staff Portal</div>
           </div>
         </div>
 
-        <h1 className="auth-title">Welcome back</h1>
-        <p className="auth-subtitle">Sign in with your staff account.</p>
+        <h1 className="auth-title">Sign in</h1>
+        <p className="auth-subtitle">
+          Enter your staff email and password to continue.
+        </p>
 
         {error && <div className="form-error-banner">{error}</div>}
 

@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 // internal
 import * as authService from "../services/authService";
 import { useAuth } from "../context/AuthContext";
+import logo from "../assets/logo-mark.png";
 import "./AuthPages.css";
 
 interface LocationState {
@@ -78,6 +79,18 @@ export default function OtpPage() {
   return (
     <div className="auth-screen">
       <div className="auth-card">
+        <div className="auth-brand">
+          <img
+            src={logo}
+            alt="Delgender Communications"
+            className="brand-mark"
+          />
+          <div>
+            <div className="brand-name">Delgender Communications</div>
+            <div className="brand-sub">Staff Portal</div>
+          </div>
+        </div>
+
         <h1 className="auth-title">Check your email</h1>
         <p className="auth-subtitle">
           Enter the 6-digit code we just sent you. It expires in 10 minutes.

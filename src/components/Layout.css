@@ -27,13 +27,7 @@
   width: 34px;
   height: 34px;
   border-radius: 9px;
-  background: var(--accent);
-  color: #00191b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 13px;
+  object-fit: cover;
   flex-shrink: 0;
 }
 

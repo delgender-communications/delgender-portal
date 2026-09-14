@@ -30,6 +30,12 @@
   margin-bottom: 26px;
 }
 
+.auth-brand .brand-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+}
+
 .auth-title {
   font-size: 21px;
   margin-bottom: 6px;
