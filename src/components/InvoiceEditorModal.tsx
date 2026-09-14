@@ -19,7 +19,7 @@ const emptyItem: InvoiceItemInput = {
   description: "",
   quantity: 1,
   unitPrice: 0,
-  taxRate: 0,
+  taxRate: 15,
   discountAmount: 0,
 };
 
