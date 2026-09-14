@@ -251,6 +251,9 @@ export default function InvoiceEditorModal({
                   min={0}
                   step="1"
                   value={item.quantity}
+                  onFocus={(e) => {
+                    if (item.quantity === 0) e.currentTarget.select();
+                  }}
                   onChange={(e) =>
                     updateItem(i, { quantity: Number(e.target.value) })
                   }
@@ -260,6 +263,9 @@ export default function InvoiceEditorModal({
                   min={0}
                   step="0.01"
                   value={item.unitPrice}
+                  onFocus={(e) => {
+                    if (item.unitPrice === 0) e.currentTarget.select();
+                  }}
                   onChange={(e) =>
                     updateItem(i, { unitPrice: Number(e.target.value) })
                   }
@@ -270,6 +276,9 @@ export default function InvoiceEditorModal({
                   max={100}
                   step="1"
                   value={item.taxRate}
+                  onFocus={(e) => {
+                    if (item.taxRate === 0) e.currentTarget.select();
+                  }}
                   onChange={(e) =>
                     updateItem(i, { taxRate: Number(e.target.value) })
                   }
@@ -279,6 +288,9 @@ export default function InvoiceEditorModal({
                   min={0}
                   step="0.01"
                   value={item.discountAmount}
+                  onFocus={(e) => {
+                    if (item.discountAmount === 0) e.currentTarget.select();
+                  }}
                   onChange={(e) =>
                     updateItem(i, { discountAmount: Number(e.target.value) })
                   }
