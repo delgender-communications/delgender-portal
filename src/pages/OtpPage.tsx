@@ -1,5 +1,11 @@
 // external
-import { useRef, useState, type FormEvent, type ClipboardEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type ClipboardEvent,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // internal
@@ -24,6 +30,7 @@ export default function OtpPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const inputs = useRef<(HTMLInputElement | null)[]>([]);
+  const autoSubmittedCode = useRef<string | null>(null);
 
   if (!state?.pendingToken) {
     navigate("/login", { replace: true });
@@ -49,9 +56,7 @@ export default function OtpPage() {
     inputs.current[Math.min(pasted.length, 5)]?.focus();
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    const code = digits.join("");
+  const submitCode = async (code: string) => {
     if (code.length !== 6) {
       setError("Enter the 6-digit code from your email.");
       return;
@@ -74,6 +79,21 @@ export default function OtpPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    const code = digits.join("");
+    if (code.length < 6) {
+      autoSubmittedCode.current = null;
+    } else if (!loading && autoSubmittedCode.current !== code) {
+      autoSubmittedCode.current = code;
+      void submitCode(code);
+    }
+  }, [digits, loading]);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    void submitCode(digits.join(""));
   };
 
   return (
