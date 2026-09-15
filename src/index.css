@@ -349,7 +349,7 @@ table.data-table {
   letter-spacing: 0.05em;
   color: var(--really-muted);
   font-weight: 700;
-  padding: 0 14px 12px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
