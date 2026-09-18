@@ -38,9 +38,9 @@ export interface LoginResult {
 export interface TrustedDevice {
   id: number;
   label?: string | null;
+  isCurrent: boolean;
   createdAt: string;
   lastUsedAt: string;
-  expiresAt: string;
 }
 
 function persistTokens(tokens: AuthTokens, rememberMe: boolean) {
@@ -105,6 +105,31 @@ export async function verifyOtp(
   }
 }
 
+export interface ResendOtpResult {
+  cooldownSeconds: number;
+}
+
+export async function resendOtp(
+  pendingToken: string,
+): Promise<ResendOtpResult> {
+  try {
+    const { data } = await api.post<ResendOtpResult>(
+      "/api/v1/auth/resend-otp",
+      {
+        pendingToken,
+      },
+    );
+    return data;
+  } catch (error) {
+    throw new Error(
+      extractErrorMessage(
+        error,
+        "Couldn't send another code. Please try again.",
+      ),
+    );
+  }
+}
+
 export async function fetchMe(): Promise<Staff> {
   const { data } = await api.get<Staff>("/api/v1/staff/me");
   return data;
@@ -139,8 +164,10 @@ export async function changePassword(
 }
 
 export async function getTrustedDevices(): Promise<TrustedDevice[]> {
+  const deviceToken = tokenStorage.getDeviceToken() ?? undefined;
   const { data } = await api.get<TrustedDevice[]>(
     "/api/v1/auth/trusted-devices",
+    { params: { deviceToken } },
   );
   return data;
 }

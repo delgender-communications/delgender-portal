@@ -37,3 +37,36 @@ export function formatTime(value: string | Date): string {
 export function initials(name: string, surname: string): string {
   return `${name.charAt(0)}${surname.charAt(0)}`.toUpperCase();
 }
+
+export function formatDuration(
+  from: string | Date,
+  to?: string | Date | null,
+): string {
+  const start = typeof from === "string" ? new Date(from) : from;
+  const end = to ? (typeof to === "string" ? new Date(to) : to) : new Date();
+
+  const totalDays = Math.max(
+    0,
+    Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)),
+  );
+
+  if (totalDays < 1) return "Today";
+  if (totalDays < 31) return `${totalDays} ${totalDays === 1 ? "day" : "days"}`;
+
+  const totalMonths =
+    (end.getFullYear() - start.getFullYear()) * 12 +
+    (end.getMonth() - start.getMonth()) -
+    (end.getDate() < start.getDate() ? 1 : 0);
+
+  if (totalMonths < 12) {
+    return `${totalMonths} ${totalMonths === 1 ? "month" : "months"}`;
+  }
+
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+  const yearPart = `${years} ${years === 1 ? "year" : "years"}`;
+
+  return months === 0
+    ? yearPart
+    : `${yearPart} ${months} ${months === 1 ? "month" : "months"}`;
+}

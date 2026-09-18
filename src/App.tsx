@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import OtpPage from "./pages/OtpPage";
 import DashboardPage from "./pages/DashboardPage";
 import BookingsPage from "./pages/BookingsPage";
+import ClientsPage from "./pages/ClientsPage";
 import InvoicesPage from "./pages/InvoicesPage";
 import StaffPage from "./pages/StaffPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -26,16 +27,10 @@ export default function App() {
         >
           <Route path="/" element={<DashboardPage />} />
           <Route path="/bookings" element={<BookingsPage />} />
+          <Route path="/clients" element={<ClientsPage />} />
           <Route path="/invoices" element={<InvoicesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
-          <Route
-            path="/staff"
-            element={
-              <ProtectedRoute adminOnly>
-                <StaffPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/staff" element={<StaffPage />} />
         </Route>
       </Routes>
     </AuthProvider>

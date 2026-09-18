@@ -31,7 +31,6 @@ export interface Booking {
   email: string;
   phoneNumber: string;
   industry: string;
-  idNumber?: string | null;
   helpWith: string;
   problemDescription: string;
   sessionGoal: string;
@@ -43,6 +42,7 @@ export interface Booking {
   updatedAt?: string;
   status: BookingStatus;
   respondedByStaffName?: string | null;
+  respondedByStaffProfilePictureUrl?: string | null;
   respondedAt?: string | null;
   responseMessage?: string | null;
   declineReason?: string | null;

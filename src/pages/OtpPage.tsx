@@ -28,6 +28,9 @@ export default function OtpPage() {
   const [digits, setDigits] = useState<string[]>(Array(6).fill(""));
   const [trustDevice, setTrustDevice] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [cooldown, setCooldown] = useState(0);
+  const [resending, setResending] = useState(false);
   const [loading, setLoading] = useState(false);
   const inputs = useRef<(HTMLInputElement | null)[]>([]);
   const autoSubmittedCode = useRef<string | null>(null);
@@ -38,11 +41,15 @@ export default function OtpPage() {
   }
 
   const setDigit = (index: number, value: string) => {
-    if (!/^\d?$/.test(value)) return;
+    if (!/^\d?$/.test(value)) {
+      return;
+    }
     const next = [...digits];
     next[index] = value;
     setDigits(next);
-    if (value && index < 5) inputs.current[index + 1]?.focus();
+    if (value && index < 5) {
+      inputs.current[index + 1]?.focus();
+    }
   };
 
   const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
@@ -50,7 +57,9 @@ export default function OtpPage() {
       .getData("text")
       .replace(/\D/g, "")
       .slice(0, 6);
-    if (!pasted) return;
+    if (!pasted) {
+      return;
+    }
     e.preventDefault();
     setDigits(Array.from({ length: 6 }, (_, i) => pasted[i] ?? ""));
     inputs.current[Math.min(pasted.length, 5)]?.focus();
@@ -96,6 +105,37 @@ export default function OtpPage() {
     void submitCode(digits.join(""));
   };
 
+  // tick the resend cooldown down to zero.
+  useEffect(() => {
+    if (cooldown <= 0) {
+      return;
+    }
+    const timer = setTimeout(() => setCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [cooldown]);
+
+  const handleResend = async () => {
+    if (cooldown > 0 || resending) return;
+
+    setResending(true);
+    setError(null);
+    setNotice(null);
+
+    try {
+      const result = await authService.resendOtp(state.pendingToken);
+      setCooldown(result.cooldownSeconds);
+      setNotice("We've sent another code. It can take a moment to arrive.");
+      setDigits(Array(6).fill(""));
+      inputs.current[0]?.focus();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Couldn't send another code.",
+      );
+    } finally {
+      setResending(false);
+    }
+  };
+
   return (
     <div className="auth-screen">
       <div className="auth-card">
@@ -117,6 +157,7 @@ export default function OtpPage() {
         </p>
 
         {error && <div className="form-error-banner">{error}</div>}
+        {notice && <div className="form-notice-banner">{notice}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="otp-input">
@@ -157,6 +198,21 @@ export default function OtpPage() {
             {loading ? "Verifying…" : "Verify & sign in"}
           </button>
         </form>
+
+        <p className="auth-footer-link">
+          Didn't get it?{" "}
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={cooldown > 0 || resending}
+          >
+            {resending
+              ? "Sending…"
+              : cooldown > 0
+                ? `Resend in ${cooldown}s`
+                : "Resend code"}
+          </button>
+        </p>
 
         <p className="auth-footer-link">
           <button type="button" onClick={() => navigate("/login")}>

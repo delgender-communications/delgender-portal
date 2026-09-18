@@ -7,11 +7,12 @@ import * as staffService from "../services/staffService";
 import type { Staff } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 import AddStaffModal from "../components/AddStaffModal";
-import { initials, formatDateTime } from "../utils/format";
+import StaffAvatar from "../components/StaffAvatar";
+import { formatDateTime } from "../utils/format";
 import "./ListPage.css";
 
 export default function StaffPage() {
-  const { staff: currentStaff } = useAuth();
+  const { staff: currentStaff, isAdmin } = useAuth();
   const [staffList, setStaffList] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
@@ -68,18 +69,24 @@ export default function StaffPage() {
     }
   };
 
+  const columnCount = isAdmin ? 7 : 3;
+
   return (
     <div>
       <div className="page-header">
         <div>
           <h1>Staff</h1>
           <p className="text-muted">
-            Manage who has access to the staff portal.
+            {isAdmin
+              ? "Manage who has access to the staff portal."
+              : "Everyone on the team."}
           </p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
-          <FiPlus size={16} /> Add staff
-        </button>
+        {isAdmin && (
+          <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
+            <FiPlus size={16} /> Add staff
+          </button>
+        )}
       </div>
 
       {error && <div className="form-error-banner">{error}</div>}
@@ -92,22 +99,26 @@ export default function StaffPage() {
                 <th>Name</th>
                 <th>Staff ID</th>
                 <th>Job title</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Last login</th>
-                <th></th>
+                {isAdmin && (
+                  <>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Last login</th>
+                    <th></th>
+                  </>
+                )}
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="empty-row">
+                  <td colSpan={columnCount} className="empty-row">
                     Loading…
                   </td>
                 </tr>
               ) : staffList.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="empty-row">
+                  <td colSpan={columnCount} className="empty-row">
                     No staff yet.
                   </td>
                 </tr>
@@ -122,70 +133,73 @@ export default function StaffPage() {
                           gap: 10,
                         }}
                       >
-                        <div
-                          className="avatar"
-                          style={{ width: 30, height: 30, fontSize: 11 }}
-                        >
-                          {member.profilePictureUrl ? (
-                            <img src={member.profilePictureUrl} alt="" />
-                          ) : (
-                            initials(member.name, member.surname)
-                          )}
-                        </div>
+                        <StaffAvatar
+                          name={member.name}
+                          surname={member.surname}
+                          profilePictureUrl={member.profilePictureUrl}
+                        />
                         <div>
                           <div style={{ fontWeight: 600 }}>
                             {member.name} {member.surname}
                           </div>
-                          <div className="text-muted text-small">
-                            {member.email}
-                          </div>
+                          {isAdmin && (
+                            <div className="text-muted text-small">
+                              {member.email}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
                     <td className="text-muted">{member.staffId}</td>
                     <td>{member.jobTitle}</td>
-                    <td>
-                      <select
-                        value={member.role}
-                        disabled={
-                          busyId === member.id || member.id === currentStaff?.id
-                        }
-                        onChange={(e) =>
-                          changeRole(
-                            member,
-                            e.target.value as "Staff" | "Admin",
-                          )
-                        }
-                        className={`badge badge-${member.role === "Admin" ? "admin" : "staff"}`}
-                        style={{ border: "none", cursor: "pointer" }}
-                      >
-                        <option value="Staff">Staff</option>
-                        <option value="Admin">Admin</option>
-                      </select>
-                    </td>
-                    <td>
-                      <span
-                        className={`badge ${member.isActive ? "badge-confirmed" : "badge-declined"}`}
-                      >
-                        {member.isActive ? "Active" : "Deactivated"}
-                      </span>
-                    </td>
-                    <td className="text-muted text-small">
-                      {member.lastLoginAt
-                        ? formatDateTime(member.lastLoginAt)
-                        : "Never"}
-                    </td>
-                    <td>
-                      {member.id !== currentStaff?.id && (
-                        <button
-                          className={`btn btn-sm ${member.isActive ? "btn-danger" : "btn-success"}`}
-                          disabled={busyId === member.id}
-                          onClick={() => toggleActive(member)}
-                        >
-                          {member.isActive ? "Deactivate" : "Reactivate"}
-                        </button>
-                      )}
-                    </td>
+
+                    {isAdmin && (
+                      <>
+                        <td>
+                          <select
+                            value={member.role}
+                            disabled={
+                              busyId === member.id ||
+                              member.id === currentStaff?.id
+                            }
+                            onChange={(e) =>
+                              changeRole(
+                                member,
+                                e.target.value as "Staff" | "Admin",
+                              )
+                            }
+                            className={`badge badge-${member.role === "Admin" ? "admin" : "staff"}`}
+                            style={{ border: "none", cursor: "pointer" }}
+                          >
+                            <option value="Staff">Staff</option>
+                            <option value="Admin">Admin</option>
+                          </select>
+                        </td>
+                        <td>
+                          <span
+                            className={`badge ${member.isActive ? "badge-confirmed" : "badge-declined"}`}
+                          >
+                            {member.isActive ? "Active" : "Deactivated"}
+                          </span>
+                        </td>
+                        <td className="text-muted text-small">
+                          {member.lastLoginAt
+                            ? formatDateTime(member.lastLoginAt)
+                            : "Never"}
+                        </td>
+                        <td>
+                          {member.id !== currentStaff?.id && (
+                            <button
+                              className={`btn btn-sm ${member.isActive ? "btn-danger" : "btn-success"}`}
+                              disabled={busyId === member.id}
+                              onClick={() => toggleActive(member)}
+                            >
+                              {member.isActive ? "Deactivate" : "Reactivate"}
+                            </button>
+                          )}
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))
               )}
@@ -194,7 +208,7 @@ export default function StaffPage() {
         </div>
       </div>
 
-      {showAdd && (
+      {showAdd && isAdmin && (
         <AddStaffModal
           onClose={() => setShowAdd(false)}
           onAdded={() => {

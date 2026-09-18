@@ -6,16 +6,40 @@ import {
   type ChangeEvent,
   type FormEvent,
 } from "react";
-import { FiTrash2 } from "react-icons/fi";
+import {
+  FiTrash2,
+  FiSmartphone,
+  FiMonitor,
+  FiTablet,
+  FiHelpCircle,
+} from "react-icons/fi";
 
 // internal
 import { useAuth } from "../context/AuthContext";
 import * as authService from "../services/authService";
 import type { TrustedDevice } from "../services/authService";
 import * as staffService from "../services/staffService";
-import { initials, formatDateTime } from "../utils/format";
+import { initials, formatDate, formatDateTime } from "../utils/format";
 import "./ListPage.css";
 import "./DashboardPage.css";
+
+function deviceIcon(label?: string | null) {
+  const text = (label ?? "").toLowerCase();
+  if (text.includes("iphone") || text.includes("android")) {
+    return <FiSmartphone size={18} />;
+  }
+  if (text.includes("ipad") || text.includes("tablet")) {
+    return <FiTablet size={18} />;
+  }
+  if (
+    text.includes("mac") ||
+    text.includes("windows") ||
+    text.includes("linux")
+  ) {
+    return <FiMonitor size={18} />;
+  }
+  return <FiHelpCircle size={18} />;
+}
 
 export default function SettingsPage() {
   const { staff, refreshStaff } = useAuth();
@@ -253,52 +277,45 @@ export default function SettingsPage() {
           verification on future sign-ins.
         </p>
 
-        <div className="table-wrap">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Added</th>
-                <th>Last used</th>
-                <th>Expires</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {devicesLoading ? (
-                <tr>
-                  <td colSpan={4} className="empty-row">
-                    Loading…
-                  </td>
-                </tr>
-              ) : devices.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="empty-row">
-                    No trusted devices.
-                  </td>
-                </tr>
-              ) : (
-                devices.map((d) => (
-                  <tr key={d.id}>
-                    <td>{formatDateTime(d.createdAt)}</td>
-                    <td>{formatDateTime(d.lastUsedAt)}</td>
-                    <td className="text-muted">
-                      {formatDateTime(d.expiresAt)}
-                    </td>
-                    <td>
-                      <button
-                        className="icon-btn"
-                        onClick={() => handleRevoke(d.id)}
-                        title="Revoke"
-                      >
-                        <FiTrash2 size={15} />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        {devicesLoading ? (
+          <div className="centered-loader" style={{ padding: "30px 0" }}>
+            <div className="spinner" />
+          </div>
+        ) : devices.length === 0 ? (
+          <p className="text-muted text-small">No trusted devices.</p>
+        ) : (
+          <div className="device-list">
+            {devices.map((d) => (
+              <div
+                key={d.id}
+                className={`device-card ${d.isCurrent ? "current" : ""}`}
+              >
+                <div className="device-icon">{deviceIcon(d.label)}</div>
+
+                <div className="device-info">
+                  <div className="device-name">
+                    {d.label || "Unknown device"}
+                    {d.isCurrent && (
+                      <span className="device-current-tag">This device</span>
+                    )}
+                  </div>
+                  <div className="text-muted text-small">
+                    Last used {formatDateTime(d.lastUsedAt)} · Trusted since{" "}
+                    {formatDate(d.createdAt)}
+                  </div>
+                </div>
+
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => handleRevoke(d.id)}
+                  title="Stop trusting this device"
+                >
+                  <FiTrash2 size={14} /> Revoke
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

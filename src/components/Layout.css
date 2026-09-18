@@ -143,6 +143,7 @@
     transition: transform 0.2s ease;
     box-shadow: var(--shadow);
   }
+  
   .sidebar.open {
     transform: translateX(0);
   }
