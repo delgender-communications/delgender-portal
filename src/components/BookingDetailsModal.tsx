@@ -7,6 +7,7 @@ import type { Booking } from "../services/bookingService";
 import { meetingTypeLabel } from "../services/bookingService";
 import { formatDate, formatDateTime } from "../utils/format";
 import StatusBadge from "./StatusBadge";
+import StaffAvatar from "./StaffAvatar";
 
 export default function BookingDetailsModal({
   booking,
@@ -68,10 +69,20 @@ export default function BookingDetailsModal({
             >
               Response
             </div>
-            <p className="text-small text-muted" style={{ marginBottom: 10 }}>
-              {booking.respondedByStaffName} ·{" "}
-              {booking.respondedAt && formatDateTime(booking.respondedAt)}
-            </p>
+            <div className="responder-row">
+              <StaffAvatar
+                fullName={booking.respondedByStaffName}
+                profilePictureUrl={booking.respondedByStaffProfilePictureUrl}
+                size={28}
+              />
+              <span className="text-small">
+                <strong>{booking.respondedByStaffName}</strong>
+                <span className="text-muted">
+                  {" · "}
+                  {booking.respondedAt && formatDateTime(booking.respondedAt)}
+                </span>
+              </span>
+            </div>
             {booking.declineReason && (
               <Detail
                 label="Decline reason"
