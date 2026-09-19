@@ -26,14 +26,11 @@ type NavItem = {
   end?: boolean;
 };
 
-// Everyone sees all of these now - the Staff page shows a slim directory to
-// regular staff and the full management view to admins, rather than being
-// hidden outright.
 const NAV_ITEMS: NavItem[] = [
-  { to: "/", label: "Analytics", icon: FiBarChart2, end: true },
   { to: "/bookings", label: "Bookings", icon: FiCalendar },
-  { to: "/clients", label: "Clients", icon: FiBriefcase },
   { to: "/invoices", label: "Invoices", icon: FiFileText },
+  { to: "/clients", label: "Clients", icon: FiBriefcase },
+  { to: "/analytics", label: "Analytics", icon: FiBarChart2, end: true },
   { to: "/staff", label: "Staff", icon: FiUsers },
 ];
 

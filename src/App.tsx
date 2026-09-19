@@ -25,7 +25,7 @@ export default function App() {
             </ProtectedRoute>
           }
         >
-          <Route path="/" element={<DashboardPage />} />
+          <Route path="/analytics" element={<DashboardPage />} />
           <Route path="/bookings" element={<BookingsPage />} />
           <Route path="/clients" element={<ClientsPage />} />
           <Route path="/invoices" element={<InvoicesPage />} />
