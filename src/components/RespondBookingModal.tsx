@@ -101,8 +101,7 @@ export default function RespondBookingModal({
               rows={2}
             />
             <span className="field-hint">
-              Kept on the booking record for internal reference — not sent to
-              the client automatically.
+              Kept on the booking record for internal reference. This won't be sent to the client.
             </span>
           </div>
         )}
