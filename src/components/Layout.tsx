@@ -27,7 +27,7 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { to: "/bookings", label: "Bookings", icon: FiCalendar },
+  { to: "/", label: "Bookings", icon: FiCalendar },
   { to: "/invoices", label: "Invoices", icon: FiFileText },
   { to: "/clients", label: "Clients", icon: FiBriefcase },
   { to: "/analytics", label: "Analytics", icon: FiBarChart2, end: true },

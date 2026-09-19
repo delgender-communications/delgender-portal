@@ -26,7 +26,7 @@ export default function App() {
           }
         >
           <Route path="/analytics" element={<DashboardPage />} />
-          <Route path="/bookings" element={<BookingsPage />} />
+          <Route path="/" element={<BookingsPage />} />
           <Route path="/clients" element={<ClientsPage />} />
           <Route path="/invoices" element={<InvoicesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
