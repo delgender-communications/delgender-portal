@@ -13,9 +13,9 @@ import "./ListPage.css";
 
 const TABS: { label: string; value?: ClientStatus }[] = [
   { label: "All" },
-  { label: "Working with", value: ClientStatus.Working },
+  { label: "Current", value: ClientStatus.Working },
   { label: "Pending", value: ClientStatus.Pending },
-  { label: "Not working with", value: ClientStatus.Declined },
+  { label: "Old/Declined", value: ClientStatus.Declined },
 ];
 
 const STATUS_BADGE: Record<ClientStatus, string> = {
@@ -27,7 +27,7 @@ const STATUS_BADGE: Record<ClientStatus, string> = {
 const STATUS_LABEL: Record<ClientStatus, string> = {
   Working: "Current",
   Pending: "Pending",
-  Declined: "Not working with",
+  Declined: "Old/Declined",
 };
 
 export default function ClientsPage() {
