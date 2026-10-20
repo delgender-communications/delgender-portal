@@ -7,6 +7,7 @@ import {
   FiFileText,
   FiUsers,
   FiBriefcase,
+  FiSend,
   FiSettings,
   FiLogOut,
   FiMenu,
@@ -30,6 +31,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: "/", label: "Bookings", icon: FiCalendar },
   { to: "/invoices", label: "Invoices", icon: FiFileText },
   { to: "/clients", label: "Clients", icon: FiBriefcase },
+  { to: "/outreach", label: "Outreach", icon: FiSend },
   { to: "/analytics", label: "Analytics", icon: FiBarChart2, end: true },
   { to: "/staff", label: "Staff", icon: FiUsers },
 ];
