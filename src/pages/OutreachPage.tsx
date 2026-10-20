@@ -118,11 +118,11 @@ export default function OutreachPage() {
       <section className="card outreach-recommended">
         <h2>Recommended</h2>
         <p className="text-muted text-small">
-          Companies our agent finds that we can email will show up here.
+          Ready soon.
         </p>
         {RECOMMENDED.length === 0 ? (
           <div className="outreach-recommended-empty">
-            Nothing recommended yet. The agent isn't connected.
+            Still a work in progress...
           </div>
         ) : (
           <ul className="outreach-recommended-list">
