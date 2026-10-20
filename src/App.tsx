@@ -7,6 +7,7 @@ import OtpPage from "./pages/OtpPage";
 import DashboardPage from "./pages/DashboardPage";
 import BookingsPage from "./pages/BookingsPage";
 import ClientsPage from "./pages/ClientsPage";
+import OutreachPage from "./pages/OutreachPage";
 import InvoicesPage from "./pages/InvoicesPage";
 import StaffPage from "./pages/StaffPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/analytics" element={<DashboardPage />} />
           <Route path="/" element={<BookingsPage />} />
           <Route path="/clients" element={<ClientsPage />} />
+          <Route path="/outreach" element={<OutreachPage />} />
           <Route path="/invoices" element={<InvoicesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/staff" element={<StaffPage />} />
