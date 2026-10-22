@@ -1,10 +1,10 @@
 // external
 import { useEffect, useState } from "react";
-import { FiDownload, FiEdit2, FiX } from "react-icons/fi";
+import { FiDownload, FiEdit2, FiMail, FiX } from "react-icons/fi";
 
 // internal
 import * as outreachService from "../services/outreachService";
-import { OUTREACH_STATUSES } from "../services/outreachService";
+import { OUTREACH_STATUSES, OutreachStatus } from "../services/outreachService";
 import type { OutreachDetail } from "../services/outreachService";
 
 function formatLogTime(value: string): string {
@@ -34,6 +34,9 @@ export default function OutreachDetailsModal({
   const [loading, setLoading] = useState(true);
   const [savingNotes, setSavingNotes] = useState(false);
   const [notesSaved, setNotesSaved] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [confirming, setConfirming] = useState<"send" | "manual" | null>(null);
+  const [acting, setActing] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -85,6 +88,46 @@ export default function OutreachDetailsModal({
       setSavingNotes(false);
     }
   };
+
+  const handleDownload = async () => {
+    if (!company) return;
+    setDownloading(true);
+    setError(null);
+    try {
+      await outreachService.downloadPitchDeck(
+        company.id,
+        company.pitchDeckFileName,
+      );
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Couldn't download that deck.",
+      );
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const runEmailAction = async (kind: "send" | "manual") => {
+    if (!company) return;
+    setActing(true);
+    setError(null);
+    try {
+      const updated =
+        kind === "send"
+          ? await outreachService.sendOutreachEmail(company.id)
+          : await outreachService.markOutreachEmailed(company.id);
+      setCompany(updated);
+      setConfirming(null);
+      onChanged();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setConfirming(null);
+    } finally {
+      setActing(false);
+    }
+  };
+
+  const canSendFromSystem = Boolean(company?.email && company?.pitchDeckUrl);
 
   const notesDirty = (company?.notes ?? "") !== notes;
 
@@ -143,21 +186,101 @@ export default function OutreachDetailsModal({
                 <div className="detail-label">Pitch deck</div>
                 <div className="detail-value">
                   {company.pitchDeckUrl ? (
-                    <a
+                    <button
                       className="btn btn-ghost btn-sm"
-                      href={company.pitchDeckUrl}
-                      target="_blank"
-                      rel="noreferrer"
+                      type="button"
+                      onClick={handleDownload}
+                      disabled={downloading}
                     >
                       <FiDownload size={14} />
-                      {company.pitchDeckFileName || "Download"}
-                    </a>
+                      {downloading
+                        ? "Downloading…"
+                        : company.pitchDeckFileName || "Download"}
+                    </button>
                   ) : (
                     "No deck yet"
                   )}
                 </div>
               </div>
             </div>
+
+            {company.status === OutreachStatus.Ready && (
+              <div className="response-block" style={{ marginBottom: 16 }}>
+                <div className="detail-label" style={{ marginBottom: 8 }}>
+                  Reach out
+                </div>
+                <p className="text-small" style={{ marginBottom: 6 }}>
+                  You can email the client yourself, then mark it as sent here
+                  so the rest of the team knows.
+                </p>
+                <p className="text-small" style={{ marginBottom: 12 }}>
+                  If you don't want to handle the email yourself, click{" "}
+                  <strong>Email the client</strong> and the system will send
+                  everything we found to the client for you. You don't have to
+                  do anything.
+                </p>
+
+                {confirming === null ? (
+                  <>
+                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        type="button"
+                        onClick={() => setConfirming("manual")}
+                      >
+                        I've emailed them myself
+                      </button>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        type="button"
+                        onClick={() => setConfirming("send")}
+                        disabled={!canSendFromSystem}
+                      >
+                        <FiMail size={14} /> Email the client
+                      </button>
+                    </div>
+                    {!canSendFromSystem && (
+                      <div className="field-hint" style={{ marginTop: 8 }}>
+                        To email from here, this company needs an email address
+                        and a pitch deck. Add them with Edit.
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div>
+                    <p className="text-small" style={{ marginBottom: 10 }}>
+                      {confirming === "send"
+                        ? `This will email ${company.email} with the pitch deck attached, and can't be undone. Send it?`
+                        : "This marks the company as Emailed without sending anything. Use it only after you've emailed them yourself."}
+                    </p>
+                    <div style={{ display: "flex", gap: 10 }}>
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        type="button"
+                        onClick={() => setConfirming(null)}
+                        disabled={acting}
+                      >
+                        Back
+                      </button>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        type="button"
+                        onClick={() => runEmailAction(confirming)}
+                        disabled={acting}
+                      >
+                        {acting
+                          ? confirming === "send"
+                            ? "Sending…"
+                            : "Saving…"
+                          : confirming === "send"
+                            ? "Yes, send it"
+                            : "Yes, mark as emailed"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="field">
               <label>What each status means</label>

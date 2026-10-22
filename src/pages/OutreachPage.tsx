@@ -45,6 +45,7 @@ export default function OutreachPage() {
   const [viewingId, setViewingId] = useState<number | null>(null);
   const [detailVersion, setDetailVersion] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
   const load = () => {
     setLoading(true);
@@ -89,6 +90,27 @@ export default function OutreachPage() {
     }
   };
 
+  const handleDownload = async (
+    event: MouseEvent,
+    company: OutreachListItem,
+  ) => {
+    event.stopPropagation();
+    setError(null);
+    setDownloadingId(company.id);
+    try {
+      await outreachService.downloadPitchDeck(
+        company.id,
+        company.pitchDeckFileName,
+      );
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Couldn't download that deck.",
+      );
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   return (
     <div>
       <div className="page-header">
@@ -117,9 +139,7 @@ export default function OutreachPage() {
 
       <section className="card outreach-recommended">
         <h2>Recommended</h2>
-        <p className="text-muted text-small">
-          Ready soon.
-        </p>
+        <p className="text-muted text-small">Ready soon.</p>
         {RECOMMENDED.length === 0 ? (
           <div className="outreach-recommended-empty">
             Still a work in progress...
@@ -223,15 +243,19 @@ export default function OutreachPage() {
                             <span className="deck-name text-small">
                               {company.pitchDeckFileName || "Pitch deck"}
                             </span>
-                            <a
+                            <button
                               className="btn btn-ghost btn-sm"
-                              href={company.pitchDeckUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              onClick={(event) => event.stopPropagation()}
+                              type="button"
+                              disabled={downloadingId === company.id}
+                              onClick={(event) =>
+                                handleDownload(event, company)
+                              }
                             >
-                              <FiDownload size={14} /> Download
-                            </a>
+                              <FiDownload size={14} />{" "}
+                              {downloadingId === company.id
+                                ? "Downloading…"
+                                : "Download"}
+                            </button>
                           </div>
                         ) : (
                           <span className="text-muted text-small">No deck</span>
