@@ -74,7 +74,7 @@ export default function LoginPage() {
               autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@delgendercommunications.site"
+              placeholder="Your email"
             />
           </div>
 
@@ -87,7 +87,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Your password"
             />
           </div>
 
