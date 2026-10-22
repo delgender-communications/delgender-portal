@@ -13,6 +13,7 @@ import OutreachFormModal, {
   type OutreachFormInitial,
 } from "../components/OutreachFormModal";
 import OutreachDetailsModal from "../components/OutreachDetailsModal";
+import ResearchLeadsPanel from "../components/ResearchLeadsPanel";
 import "./ListPage.css";
 import "./OutreachPage.css";
 
@@ -23,16 +24,6 @@ const TABS: { label: string; value?: OutreachStatus }[] = [
     value: status.value,
   })),
 ];
-
-type RecommendedCompany = {
-  id: string;
-  companyName: string;
-  email?: string | null;
-  reason?: string | null;
-};
-
-// Filled later by the research agent. Left empty on purpose.
-const RECOMMENDED: RecommendedCompany[] = [];
 
 export default function OutreachPage() {
   const [tab, setTab] = useState(0);
@@ -63,17 +54,9 @@ export default function OutreachPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, page]);
 
-  const openCreate = (prefill?: RecommendedCompany) => {
+  const openCreate = () => {
     setCreating(true);
-    setShowForm(
-      prefill
-        ? {
-            companyName: prefill.companyName,
-            email: prefill.email,
-            status: OutreachStatus.Researching,
-          }
-        : { status: OutreachStatus.Researching },
-    );
+    setShowForm({ status: OutreachStatus.Researching });
   };
 
   const openEdit = async (event: MouseEvent, id: number) => {
@@ -137,40 +120,7 @@ export default function OutreachPage() {
         ))}
       </ul>
 
-      <section className="card outreach-recommended">
-        <h2>Recommended</h2>
-        <p className="text-muted text-small">Ready soon.</p>
-        {RECOMMENDED.length === 0 ? (
-          <div className="outreach-recommended-empty">
-            Still a work in progress...
-          </div>
-        ) : (
-          <ul className="outreach-recommended-list">
-            {RECOMMENDED.map((company) => (
-              <li key={company.id}>
-                <div>
-                  <strong>{company.companyName}</strong>
-                  {company.email && (
-                    <div className="text-muted text-small">{company.email}</div>
-                  )}
-                  {company.reason && (
-                    <div className="text-muted text-small">
-                      {company.reason}
-                    </div>
-                  )}
-                </div>
-                <button
-                  className="btn btn-ghost btn-sm"
-                  type="button"
-                  onClick={() => openCreate(company)}
-                >
-                  Add
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <ResearchLeadsPanel onAccepted={load} />
 
       <div className="pill-tabs" style={{ marginBottom: 20 }}>
         {TABS.map((item, index) => (
