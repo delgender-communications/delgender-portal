@@ -1,11 +1,12 @@
 // external
 import { useEffect, useState } from "react";
-import { FiDownload, FiEdit2, FiMail, FiX } from "react-icons/fi";
+import { FiDownload, FiEdit2, FiMail, FiMaximize2, FiX } from "react-icons/fi";
 
 // internal
 import * as outreachService from "../services/outreachService";
 import { OUTREACH_STATUSES, OutreachStatus } from "../services/outreachService";
 import type { OutreachDetail } from "../services/outreachService";
+import NotesExpandedModal from "./NotesExpandedModal";
 
 function formatLogTime(value: string): string {
   return new Date(value).toLocaleString("en-ZA", {
@@ -37,6 +38,7 @@ export default function OutreachDetailsModal({
   const [downloading, setDownloading] = useState(false);
   const [confirming, setConfirming] = useState<"send" | "manual" | null>(null);
   const [acting, setActing] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -66,27 +68,41 @@ export default function OutreachDetailsModal({
     (status) => status.value === company?.status,
   );
 
-  const saveNotes = async () => {
-    if (!company) return;
+  const persistNotes = async (value: string): Promise<boolean> => {
+    if (!company) return false;
     setSavingNotes(true);
     setError(null);
     setNotesSaved(false);
     try {
       const updated = await outreachService.updateOutreachNotes(
         company.id,
-        notes,
+        value,
       );
       setCompany(updated);
       setNotes(updated.notes ?? "");
       setNotesSaved(true);
       onChanged();
+      return true;
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Couldn't save those notes.",
       );
+      return false;
     } finally {
       setSavingNotes(false);
     }
+  };
+
+  const saveNotes = () => persistNotes(notes);
+
+  const openExpanded = () => {
+    setError(null);
+    setExpanded(true);
+  };
+
+  const closeExpanded = () => {
+    setExpanded(false);
+    setError(null);
   };
 
   const handleDownload = async () => {
@@ -298,14 +314,25 @@ export default function OutreachDetailsModal({
 
             <div className="field">
               <label>Notes</label>
-              <textarea
-                value={notes}
-                onChange={(e) => {
-                  setNotes(e.target.value);
-                  setNotesSaved(false);
-                }}
-                placeholder="Issues they're facing, or anything the next person should know."
-              />
+              <div className="notes-box">
+                <textarea
+                  value={notes}
+                  onChange={(e) => {
+                    setNotes(e.target.value);
+                    setNotesSaved(false);
+                  }}
+                  placeholder="Issues they're facing, or anything the next person should know."
+                />
+                <button
+                  className="notes-expand"
+                  type="button"
+                  onClick={openExpanded}
+                  aria-label="Expand notes"
+                  title="Expand notes"
+                >
+                  <FiMaximize2 size={14} />
+                </button>
+              </div>
               <div className="field-hint">
                 Notes can be edited by anyone and are not added to the activity
                 log.
@@ -365,6 +392,20 @@ export default function OutreachDetailsModal({
           </>
         )}
       </div>
+
+      {expanded && (
+        <NotesExpandedModal
+          subtitle={company?.companyName}
+          initial={notes}
+          placeholder="Issues they're facing, or anything the next person should know."
+          saving={savingNotes}
+          error={error}
+          onDone={async (value) => {
+            if (await persistNotes(value)) closeExpanded();
+          }}
+          onClose={closeExpanded}
+        />
+      )}
     </div>
   );
 }

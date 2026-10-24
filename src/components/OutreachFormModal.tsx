@@ -1,11 +1,12 @@
 // external
 import { useState } from "react";
-import { FiX } from "react-icons/fi";
+import { FiMaximize2, FiX } from "react-icons/fi";
 
 // internal
 import * as outreachService from "../services/outreachService";
 import { OUTREACH_STATUSES, OutreachStatus } from "../services/outreachService";
 import type { OutreachDetail } from "../services/outreachService";
+import NotesExpandedModal from "./NotesExpandedModal";
 
 const MAX_DECK_BYTES = 20 * 1024 * 1024;
 
@@ -42,6 +43,7 @@ export default function OutreachFormModal({
   const [savedId, setSavedId] = useState<number | null>(initial?.id ?? null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [notesExpanded, setNotesExpanded] = useState(false);
 
   const set = (key: keyof typeof form, value: string) =>
     setForm((current) => ({ ...current, [key]: value }));
@@ -161,7 +163,7 @@ export default function OutreachFormModal({
           <input
             value={form.contactName}
             onChange={(e) => set("contactName", e.target.value)}
-            placeholder="Person we would email, if we have a name, otherwise leave blank"
+            placeholder="Person we would email, if we have a name"
           />
         </div>
 
@@ -186,11 +188,22 @@ export default function OutreachFormModal({
 
         <div className="field">
           <label>Notes</label>
-          <textarea
-            value={form.notes}
-            onChange={(e) => set("notes", e.target.value)}
-            placeholder="Issues they may be facing, and anything the team should know."
-          />
+          <div className="notes-box">
+            <textarea
+              value={form.notes}
+              onChange={(e) => set("notes", e.target.value)}
+              placeholder="Issues they may be facing, and anything the team should know."
+            />
+            <button
+              className="notes-expand"
+              type="button"
+              onClick={() => setNotesExpanded(true)}
+              aria-label="Expand notes"
+              title="Expand notes"
+            >
+              <FiMaximize2 size={14} />
+            </button>
+          </div>
           <div className="field-hint">
             Anyone can edit notes later. Those edits are not logged.
           </div>
@@ -255,6 +268,19 @@ export default function OutreachFormModal({
           </button>
         </div>
       </div>
+
+      {notesExpanded && (
+        <NotesExpandedModal
+          subtitle={form.companyName.trim() || undefined}
+          initial={form.notes}
+          placeholder="Issues they may be facing, and anything the team should know."
+          onDone={(value) => {
+            set("notes", value);
+            setNotesExpanded(false);
+          }}
+          onClose={() => setNotesExpanded(false)}
+        />
+      )}
     </div>
   );
 }
