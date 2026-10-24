@@ -173,7 +173,20 @@ export async function getTrustedDevices(): Promise<TrustedDevice[]> {
 }
 
 export async function revokeTrustedDevice(id: number): Promise<void> {
-  await api.delete(`/api/v1/auth/trusted-devices/${id}`);
+  await api.delete(`/api/v1/auth/trusted-devices/${id}`, {
+    data: {
+      refreshToken: tokenStorage.getRefreshToken(),
+      deviceToken: tokenStorage.getDeviceToken(),
+    },
+  });
+}
+
+export async function notifyAppOpen(): Promise<void> {
+  try {
+    await api.post("/api/v1/auth/app-open");
+  } catch {
+    // overdue sweep is best-effort and must not block the portal
+  }
 }
 
 export function forgetThisDevice() {

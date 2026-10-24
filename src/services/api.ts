@@ -6,6 +6,10 @@ const ACCESS_TOKEN_KEY = "dgc_access_token";
 const REFRESH_TOKEN_KEY = "dgc_refresh_token";
 const REMEMBER_KEY = "dgc_remember_me";
 const DEVICE_TOKEN_KEY = "dgc_device_token";
+const AUTH_EPOCH_KEY = "dgc_auth_epoch";
+
+// Bump together with backend AuthSession.Version to force one fresh sign-in.
+export const AUTH_EPOCH = "2";
 
 function getStore(): Storage {
   return localStorage.getItem(REMEMBER_KEY) === "1"
@@ -46,6 +50,48 @@ export const tokenStorage = {
     localStorage.removeItem(DEVICE_TOKEN_KEY);
   },
 };
+
+function sessionVersion(token: string | null): string | null {
+  if (!token) return null;
+  const part = token.split(".")[1];
+  if (!part) return null;
+  try {
+    const padded = part.replace(/-/g, "+").replace(/_/g, "/");
+    const pad =
+      padded.length % 4 === 0 ? "" : "=".repeat(4 - (padded.length % 4));
+    const payload = JSON.parse(atob(padded + pad)) as { svn?: string | number };
+    return payload.svn == null ? null : String(payload.svn);
+  } catch {
+    return null;
+  }
+}
+
+function enforceAuthEpoch() {
+  try {
+    if (localStorage.getItem(AUTH_EPOCH_KEY) === AUTH_EPOCH) return;
+
+    const access =
+      localStorage.getItem(ACCESS_TOKEN_KEY) ??
+      sessionStorage.getItem(ACCESS_TOKEN_KEY);
+
+    // Already signed in on this session generation (portal shipped after the API).
+    if (sessionVersion(access) === AUTH_EPOCH) {
+      localStorage.setItem(AUTH_EPOCH_KEY, AUTH_EPOCH);
+      return;
+    }
+
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(REMEMBER_KEY);
+    sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+    sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.setItem(AUTH_EPOCH_KEY, AUTH_EPOCH);
+  } catch {
+    // private mode — nothing to clear
+  }
+}
+
+enforceAuthEpoch();
 
 export const api = axios.create({
   baseURL: BASE_URL,

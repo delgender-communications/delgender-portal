@@ -42,7 +42,7 @@ function deviceIcon(label?: string | null) {
 }
 
 export default function SettingsPage() {
-  const { staff, refreshStaff } = useAuth();
+  const { staff, refreshStaff, logout } = useAuth();
 
   // profile picture
   const fileInput = useRef<HTMLInputElement>(null);
@@ -116,9 +116,14 @@ export default function SettingsPage() {
     }
   };
 
-  const handleRevoke = async (id: number) => {
-    await authService.revokeTrustedDevice(id);
-    setDevices((prev) => prev.filter((d) => d.id !== id));
+  const handleRevoke = async (device: TrustedDevice) => {
+    await authService.revokeTrustedDevice(device.id);
+    if (device.isCurrent) {
+      authService.forgetThisDevice();
+      await logout();
+      return;
+    }
+    setDevices((prev) => prev.filter((d) => d.id !== device.id));
   };
 
   if (!staff) return null;
@@ -273,8 +278,8 @@ export default function SettingsPage() {
           Trusted devices
         </div>
         <p className="text-muted text-small" style={{ marginBottom: 16 }}>
-          Devices where you chose "don't ask for a code again" skip email
-          verification on future sign-ins.
+          Devices that skip the email code. Revoking one signs that device out,
+          including this one.
         </p>
 
         {devicesLoading ? (
@@ -307,8 +312,8 @@ export default function SettingsPage() {
 
                 <button
                   className="btn btn-ghost btn-sm"
-                  onClick={() => handleRevoke(d.id)}
-                  title="Stop trusting this device"
+                  onClick={() => handleRevoke(d)}
+                  title="Sign this device out"
                 >
                   <FiTrash2 size={14} /> Revoke
                 </button>

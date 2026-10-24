@@ -1,7 +1,7 @@
 import { InvoiceStatus } from "../services/invoiceService";
 import type { Invoice } from "../services/invoiceService";
 
-// Belt-and-braces: the backend also flags overdue invoices (on login, on startup,
+// Belt-and-braces: the backend also flags overdue invoices (on app open, on startup,
 // and defensively whenever it returns invoice data), but the frontend checks too
 // so the portal is never showing a stale "Sent" for something clearly past due,
 // even for a moment.

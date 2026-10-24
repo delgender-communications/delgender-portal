@@ -38,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const me = await authService.fetchMe();
       setStaffState(me);
+      void authService.notifyAppOpen();
     } catch {
       tokenStorage.clearSession();
       setStaffState(null);
