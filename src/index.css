@@ -49,10 +49,25 @@
   box-sizing: border-box;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 body {
   margin: 0;
   background-color: var(--bg);
   color: var(--text);
+}
+
+/* Lock the page behind any open modal so only the modal scrolls. */
+body:has(.modal-backdrop) {
+  overflow: hidden;
 }
 
 #root {
@@ -401,6 +416,7 @@ table.data-table {
   justify-content: center;
   padding: 20px;
   z-index: 100;
+  overscroll-behavior: contain;
 }
 
 .modal-panel {
@@ -412,6 +428,7 @@ table.data-table {
   max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 26px;
 }
 
@@ -443,6 +460,8 @@ table.data-table {
 
 .pill-tabs {
   display: inline-flex;
+  max-width: 100%;
+  overflow-x: auto;
   gap: 4px;
   padding: 4px;
   background: var(--bg-raise);
@@ -451,6 +470,8 @@ table.data-table {
 }
 
 .pill-tab {
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 13.5px;

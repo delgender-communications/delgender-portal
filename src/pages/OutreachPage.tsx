@@ -273,6 +273,7 @@ export default function OutreachPage() {
           onClose={() => setViewingId(null)}
           onChanged={load}
           onEdit={(detail) => {
+            setViewingId(null);
             setCreating(false);
             setShowForm(detail);
           }}
