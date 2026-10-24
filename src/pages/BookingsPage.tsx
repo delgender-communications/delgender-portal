@@ -120,11 +120,11 @@ export default function BookingsPage() {
                         {b.bookingReference} · {b.email}
                       </div>
                     </td>
-                    <td>{b.companyName}</td>
-                    <td>
+                    <td data-label="Company">{b.companyName}</td>
+                    <td data-label="Requested for">
                       {formatDate(b.date)} · {b.time.slice(0, 5)}
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <StatusBadge status={b.status} />
                     </td>
                     <td onClick={(e) => e.stopPropagation()}>

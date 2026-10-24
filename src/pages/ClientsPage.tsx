@@ -134,7 +134,7 @@ export default function ClientsPage() {
                         {client.email}
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Contact">
                       <div>{client.contactFullName}</div>
                       {client.contactJobTitle && (
                         <div className="text-muted text-small">
@@ -142,9 +142,13 @@ export default function ClientsPage() {
                         </div>
                       )}
                     </td>
-                    <td className="text-muted">{client.industry}</td>
-                    <td className="text-small">{relationshipLabel(client)}</td>
-                    <td>
+                    <td className="text-muted" data-label="Industry">
+                      {client.industry}
+                    </td>
+                    <td className="text-small" data-label="Relationship">
+                      {relationshipLabel(client)}
+                    </td>
+                    <td data-label="Status">
                       <span className={`badge ${STATUS_BADGE[client.status]}`}>
                         {STATUS_LABEL[client.status]}
                       </span>

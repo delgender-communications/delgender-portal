@@ -179,8 +179,10 @@ export default function DashboardPage() {
                         <td className="text-muted">
                           {formatDateTime(v.visitedAt)}
                         </td>
-                        <td>{pageLabel(v.path)}</td>
-                        <td className="text-muted">{v.referrer}</td>
+                        <td data-label="Page">{pageLabel(v.path)}</td>
+                        <td className="text-muted" data-label="Referrer">
+                          {v.referrer}
+                        </td>
                       </tr>
                     ))
                   )}

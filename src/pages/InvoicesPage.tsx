@@ -108,19 +108,22 @@ export default function InvoicesPage() {
                     onClick={() => setViewingInvoice(inv)}
                   >
                     <td style={{ fontWeight: 700 }}>{inv.invoiceNumber}</td>
-                    <td>
+                    <td data-label="Client">
                       <div>{inv.customerName}</div>
                       <div className="text-muted text-small">
                         {inv.customerCompany}
                       </div>
                     </td>
-                    <td className={isOverdue(inv) ? "overdue-date" : undefined}>
+                    <td
+                      className={isOverdue(inv) ? "overdue-date" : undefined}
+                      data-label="Due"
+                    >
                       {formatDate(inv.dueDate)}
                     </td>
-                    <td style={{ fontWeight: 600 }}>
+                    <td style={{ fontWeight: 600 }} data-label="Amount">
                       {formatCurrency(inv.totalAmount)}
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <StatusBadge status={displayStatus(inv)} />
                     </td>
                   </tr>

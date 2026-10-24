@@ -185,9 +185,11 @@ export default function OutreachPage() {
                           </span>
                         </div>
                       </td>
-                      <td>{company.contactName || "—"}</td>
-                      <td className="text-muted">{company.email || "—"}</td>
-                      <td>
+                      <td data-label="Contact">{company.contactName || "—"}</td>
+                      <td className="text-muted" data-label="Email">
+                        {company.email || "—"}
+                      </td>
+                      <td data-label="Pitch deck">
                         {company.pitchDeckUrl ? (
                           <div className="deck-cell">
                             <span className="deck-name text-small">

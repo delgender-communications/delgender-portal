@@ -139,11 +139,8 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div
-        className="dashboard-grid"
-        style={{ gridTemplateColumns: "1fr 1fr", alignItems: "start" }}
-      >
-        <div className="card" style={{ marginBottom: 22 }}>
+      <div className="settings-grid">
+        <div className="card">
           <div className="card-title" style={{ marginBottom: 18 }}>
             Profile
           </div>
@@ -166,7 +163,7 @@ export default function SettingsPage() {
                 initials(staff.name, staff.surname)
               )}
             </div>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <div style={{ fontWeight: 700, fontSize: 15 }}>
                 {staff.name} {staff.surname}
               </div>
@@ -215,7 +212,7 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="card" style={{ marginBottom: 22 }}>
+        <div className="card">
           <div className="card-title" style={{ marginBottom: 18 }}>
             Change password
           </div>

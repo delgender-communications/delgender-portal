@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+
 interface Series {
   label: string;
   color: string;
@@ -11,7 +13,20 @@ interface Props {
 }
 
 export default function TrendChart({ series, xLabels, height = 260 }: Props) {
-  const width = 1000;
+  const box = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(1000);
+
+  // Draw at the real container width so labels aren't scaled down on phones.
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setWidth(Math.max(240, Math.round(entry.contentRect.width)));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const padding = { top: 16, right: 16, bottom: 28, left: 40 };
   const innerW = width - padding.left - padding.right;
   const innerH = height - padding.top - padding.bottom;
@@ -33,72 +48,77 @@ export default function TrendChart({ series, xLabels, height = 260 }: Props) {
 
   const gridLines = [0, 0.25, 0.5, 0.75, 1];
 
+  // show only as many x labels as fit
+  const labelEvery = Math.max(1, Math.ceil((pointCount * 56) / innerW));
+
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      style={{ width: "100%", height: "auto", display: "block" }}
-    >
-      {gridLines.map((g) => {
-        const y = padding.top + innerH - g * innerH;
-        return (
-          <g key={g}>
-            <line
-              x1={padding.left}
-              x2={width - padding.right}
-              y1={y}
-              y2={y}
-              stroke="var(--border)"
-              strokeWidth={1}
-            />
-            <text x={0} y={y + 4} fontSize={11} fill="var(--really-muted)">
-              {Math.round(niceMax * g)}
-            </text>
-          </g>
-        );
-      })}
-
-      {series.map((s) => (
-        <path
-          key={s.label}
-          d={toPath(s.values)}
-          fill="none"
-          stroke={s.color}
-          strokeWidth={2.5}
-        />
-      ))}
-
-      {series.map((s) =>
-        s.values.map((v, i) => {
-          const x = padding.left + i * stepX;
-          const y = padding.top + innerH - (v / niceMax) * innerH;
+    <div ref={box} style={{ width: "100%" }}>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        style={{ width: "100%", height: "auto", display: "block" }}
+      >
+        {gridLines.map((g) => {
+          const y = padding.top + innerH - g * innerH;
           return (
-            <circle
-              key={`${s.label}-${i}`}
-              cx={x}
-              cy={y}
-              r={2.5}
-              fill={s.color}
-            />
+            <g key={g}>
+              <line
+                x1={padding.left}
+                x2={width - padding.right}
+                y1={y}
+                y2={y}
+                stroke="var(--border)"
+                strokeWidth={1}
+              />
+              <text x={0} y={y + 4} fontSize={11} fill="var(--really-muted)">
+                {Math.round(niceMax * g)}
+              </text>
+            </g>
           );
-        }),
-      )}
+        })}
 
-      {xLabels.map((label, i) => {
-        if (pointCount > 12 && i % 3 !== 0) return null;
-        const x = padding.left + i * stepX;
-        return (
-          <text
-            key={label}
-            x={x}
-            y={height - 6}
-            fontSize={11}
-            fill="var(--really-muted)"
-            textAnchor="middle"
-          >
-            {label}
-          </text>
-        );
-      })}
-    </svg>
+        {series.map((s) => (
+          <path
+            key={s.label}
+            d={toPath(s.values)}
+            fill="none"
+            stroke={s.color}
+            strokeWidth={2.5}
+          />
+        ))}
+
+        {series.map((s) =>
+          s.values.map((v, i) => {
+            const x = padding.left + i * stepX;
+            const y = padding.top + innerH - (v / niceMax) * innerH;
+            return (
+              <circle
+                key={`${s.label}-${i}`}
+                cx={x}
+                cy={y}
+                r={2.5}
+                fill={s.color}
+              />
+            );
+          }),
+        )}
+
+        {xLabels.map((label, i) => {
+          if (i % labelEvery !== 0) return null;
+          const x = padding.left + i * stepX;
+          return (
+            <text
+              key={label}
+              x={x}
+              y={height - 6}
+              fontSize={11}
+              fill="var(--really-muted)"
+              textAnchor="middle"
+            >
+              {label}
+            </text>
+          );
+        })}
+      </svg>
+    </div>
   );
 }

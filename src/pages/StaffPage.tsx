@@ -150,12 +150,14 @@ export default function StaffPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="text-muted">{member.staffId}</td>
-                    <td>{member.jobTitle}</td>
+                    <td className="text-muted" data-label="Staff ID">
+                      {member.staffId}
+                    </td>
+                    <td data-label="Job title">{member.jobTitle}</td>
 
                     {isAdmin && (
                       <>
-                        <td>
+                        <td data-label="Role">
                           <select
                             value={member.role}
                             disabled={
@@ -175,14 +177,17 @@ export default function StaffPage() {
                             <option value="Admin">Admin</option>
                           </select>
                         </td>
-                        <td>
+                        <td data-label="Status">
                           <span
                             className={`badge ${member.isActive ? "badge-confirmed" : "badge-declined"}`}
                           >
                             {member.isActive ? "Active" : "Deactivated"}
                           </span>
                         </td>
-                        <td className="text-muted text-small">
+                        <td
+                          className="text-muted text-small"
+                          data-label="Last login"
+                        >
                           {member.lastLoginAt
                             ? formatDateTime(member.lastLoginAt)
                             : "Never"}
