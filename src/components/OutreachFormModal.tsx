@@ -163,7 +163,7 @@ export default function OutreachFormModal({
           <input
             value={form.contactName}
             onChange={(e) => set("contactName", e.target.value)}
-            placeholder="Person we would email, if we have a name"
+            placeholder="Person we would email, if we have a name, otherwise leave blank"
           />
         </div>
 
