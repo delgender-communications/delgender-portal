@@ -85,7 +85,7 @@ export default function DocumentsPage() {
         <div>
           <h1>Documents</h1>
           <p className="text-muted">
-            Essential documents for the whole team, like the contract. Anyone
+            Essential documents for the whole team. Anyone
             can add one, download it, or email it to a client.
           </p>
         </div>
@@ -135,7 +135,7 @@ export default function DocumentsPage() {
               ) : documents.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="empty-row">
-                    No documents yet. Add the contract to get started.
+                    No documents yet.
                   </td>
                 </tr>
               ) : (
