@@ -346,7 +346,7 @@
   padding: 12px;
   border: 1px solid var(--border-strong);
   border-radius: 14px;
-  background: var(--bg);
+  background: var(--bg-raise);
 }
 
 .replace-file-label {
