@@ -9,6 +9,8 @@ import type { OutreachDetail } from "../services/outreachService";
 import NotesExpandedModal from "./NotesExpandedModal";
 
 const MAX_DECK_BYTES = 20 * 1024 * 1024;
+const MAX_REPORT_BYTES = 20 * 1024 * 1024;
+const REPORT_EXTENSIONS = [".docx", ".txt", ".pdf"];
 
 export type OutreachFormInitial = {
   id?: number;
@@ -19,6 +21,7 @@ export type OutreachFormInitial = {
   notes?: string | null;
   status?: OutreachStatus;
   pitchDeckFileName?: string | null;
+  reportFileName?: string | null;
 };
 
 export default function OutreachFormModal({
@@ -40,6 +43,11 @@ export default function OutreachFormModal({
     status: initial?.status ?? OutreachStatus.Researching,
   });
   const [file, setFile] = useState<File | null>(null);
+  const [reportFile, setReportFile] = useState<File | null>(null);
+  // Changing a file input's key clears it, so a file that already uploaded
+  // isn't shown (or sent) again if the other upload needs a retry.
+  const [deckInputKey, setDeckInputKey] = useState(0);
+  const [reportInputKey, setReportInputKey] = useState(0);
   const [savedId, setSavedId] = useState<number | null>(initial?.id ?? null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -76,6 +84,18 @@ export default function OutreachFormModal({
       }
     }
 
+    if (reportFile) {
+      const lowerName = reportFile.name.toLowerCase();
+      if (!REPORT_EXTENSIONS.some((ext) => lowerName.endsWith(ext))) {
+        setError("The report needs to be a DOCX, TXT or PDF file.");
+        return;
+      }
+      if (reportFile.size > MAX_REPORT_BYTES) {
+        setError("That report is over 20 MB.");
+        return;
+      }
+    }
+
     setLoading(true);
     setError(null);
 
@@ -100,17 +120,37 @@ export default function OutreachFormModal({
         detail = await outreachService.updateOutreach(id, payload);
       }
 
+      const uploadErrors: string[] = [];
+
       if (file) {
         try {
           await outreachService.uploadPitchDeck(id, file);
+          setFile(null);
+          setDeckInputKey((key) => key + 1);
         } catch (err) {
-          setError(
+          uploadErrors.push(
             err instanceof Error
-              ? `${err.message} The company itself was saved.`
-              : "The company was saved, but the pitch deck didn't upload.",
+              ? err.message
+              : "The pitch deck didn't upload.",
           );
-          return;
         }
+      }
+
+      if (reportFile) {
+        try {
+          await outreachService.uploadReport(id, reportFile);
+          setReportFile(null);
+          setReportInputKey((key) => key + 1);
+        } catch (err) {
+          uploadErrors.push(
+            err instanceof Error ? err.message : "The report didn't upload.",
+          );
+        }
+      }
+
+      if (uploadErrors.length > 0) {
+        setError(`${uploadErrors.join(" ")} The company itself was saved.`);
+        return;
       }
 
       void detail;
@@ -231,6 +271,7 @@ export default function OutreachFormModal({
         <div className="field">
           <label>Pitch deck (PDF)</label>
           <input
+            key={deckInputKey}
             type="file"
             accept="application/pdf,.pdf"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
@@ -239,6 +280,21 @@ export default function OutreachFormModal({
             {initial?.pitchDeckFileName
               ? `Current file: ${initial.pitchDeckFileName}. Uploading a new PDF replaces it, and that replacement is logged.`
               : "Optional. A new upload is logged."}
+          </div>
+        </div>
+
+        <div className="field">
+          <label>Findings report (DOCX, TXT or PDF)</label>
+          <input
+            key={reportInputKey}
+            type="file"
+            accept=".docx,.txt,.pdf,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            onChange={(e) => setReportFile(e.target.files?.[0] ?? null)}
+          />
+          <div className="field-hint">
+            {initial?.reportFileName
+              ? `Current file: ${initial.reportFileName}. Uploading a new report replaces it, and that replacement is logged.`
+              : "Optional. The report of what we found out about this company. A new upload is logged."}
           </div>
         </div>
 

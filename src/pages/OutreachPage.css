@@ -311,3 +311,28 @@
 .notes-discard .notes-actions {
   margin-top: 12px;
 }
+
+/* Details modal: never scroll sideways. Long file names get an ellipsis. */
+.outreach-details-panel {
+  overflow-x: hidden;
+}
+
+.outreach-details-panel .detail-item {
+  min-width: 0;
+}
+
+.file-btn {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.file-btn svg {
+  flex-shrink: 0;
+}
+
+.file-btn span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

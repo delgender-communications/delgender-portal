@@ -74,6 +74,9 @@ export interface OutreachDetail {
   pitchDeckFileName?: string | null;
   pitchDeckUrl?: string | null;
   pitchDeckUploadedAt?: string | null;
+  reportFileName?: string | null;
+  reportUrl?: string | null;
+  reportUploadedAt?: string | null;
   addedByStaffId: number;
   addedByName: string;
   createdAt: string;
@@ -154,6 +157,20 @@ export async function updateOutreachNotes(
   }
 }
 
+// Lets the browser set the multipart boundary itself.
+const multipartConfig = {
+  transformRequest: (
+    payload: unknown,
+    headers?: { [key: string]: unknown },
+  ) => {
+    if (headers) {
+      delete headers["Content-Type"];
+      delete headers["content-type"];
+    }
+    return payload;
+  },
+};
+
 export async function uploadPitchDeck(
   id: number,
   file: File,
@@ -164,20 +181,35 @@ export async function uploadPitchDeck(
     const { data } = await api.post<OutreachDetail>(
       `/api/v1/outreach/${id}/pitch-deck`,
       form,
-      {
-        transformRequest: (payload, headers) => {
-          if (headers) {
-            delete headers["Content-Type"];
-            delete headers["content-type"];
-          }
-          return payload;
-        },
-      },
+      multipartConfig,
     );
     return data;
   } catch (error) {
     throw new Error(
       extractErrorMessage(error, "Couldn't upload that pitch deck."),
+    );
+  }
+}
+
+export async function uploadReport(
+  id: number,
+  file: File,
+): Promise<OutreachDetail> {
+  const form = new FormData();
+  form.append("file", file);
+  try {
+    const { data } = await api.post<OutreachDetail>(
+      `/api/v1/outreach/${id}/report`,
+      form,
+      multipartConfig,
+    );
+    return data;
+  } catch (error) {
+    throw new Error(
+      extractErrorMessage(error, "Couldn't upload that report."),
+      {
+        cause: error,
+      },
     );
   }
 }
@@ -218,6 +250,30 @@ export async function downloadPitchDeck(
   } catch (error) {
     throw new Error(
       await blobErrorMessage(error, "Couldn't download that pitch deck."),
+      { cause: error },
+    );
+  }
+}
+
+export async function downloadReport(
+  id: number,
+  fileName?: string | null,
+): Promise<void> {
+  try {
+    const { data } = await api.get<Blob>(`/api/v1/outreach/${id}/report`, {
+      responseType: "blob",
+    });
+    const url = URL.createObjectURL(data);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName || "findings-report";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  } catch (error) {
+    throw new Error(
+      await blobErrorMessage(error, "Couldn't download that report."),
       { cause: error },
     );
   }

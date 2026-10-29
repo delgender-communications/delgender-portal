@@ -36,6 +36,7 @@ export default function OutreachDetailsModal({
   const [savingNotes, setSavingNotes] = useState(false);
   const [notesSaved, setNotesSaved] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [downloadingReport, setDownloadingReport] = useState(false);
   const [confirming, setConfirming] = useState<"send" | "manual" | null>(null);
   const [acting, setActing] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -123,6 +124,21 @@ export default function OutreachDetailsModal({
     }
   };
 
+  const handleDownloadReport = async () => {
+    if (!company) return;
+    setDownloadingReport(true);
+    setError(null);
+    try {
+      await outreachService.downloadReport(company.id, company.reportFileName);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Couldn't download that report.",
+      );
+    } finally {
+      setDownloadingReport(false);
+    }
+  };
+
   const runEmailAction = async (kind: "send" | "manual") => {
     if (!company) return;
     setActing(true);
@@ -150,7 +166,7 @@ export default function OutreachDetailsModal({
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div
-        className="modal-panel modal-wide"
+        className="modal-panel modal-wide outreach-details-panel"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
@@ -203,18 +219,44 @@ export default function OutreachDetailsModal({
                 <div className="detail-value">
                   {company.pitchDeckUrl ? (
                     <button
-                      className="btn btn-ghost btn-sm"
+                      className="btn btn-ghost btn-sm file-btn"
                       type="button"
                       onClick={handleDownload}
                       disabled={downloading}
+                      title={company.pitchDeckFileName || undefined}
                     >
                       <FiDownload size={14} />
-                      {downloading
-                        ? "Downloading…"
-                        : company.pitchDeckFileName || "Download"}
+                      <span>
+                        {downloading
+                          ? "Downloading…"
+                          : company.pitchDeckFileName || "Download"}
+                      </span>
                     </button>
                   ) : (
                     "No deck yet"
+                  )}
+                </div>
+              </div>
+              <div className="detail-item">
+                <div className="detail-label">Findings report</div>
+                <div className="detail-value">
+                  {company.reportUrl ? (
+                    <button
+                      className="btn btn-ghost btn-sm file-btn"
+                      type="button"
+                      onClick={handleDownloadReport}
+                      disabled={downloadingReport}
+                      title={company.reportFileName || undefined}
+                    >
+                      <FiDownload size={14} />
+                      <span>
+                        {downloadingReport
+                          ? "Downloading…"
+                          : company.reportFileName || "Download"}
+                      </span>
+                    </button>
+                  ) : (
+                    "No report yet"
                   )}
                 </div>
               </div>
