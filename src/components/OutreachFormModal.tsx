@@ -1,6 +1,6 @@
 // external
 import { useState } from "react";
-import { FiMaximize2, FiX } from "react-icons/fi";
+import { FiExternalLink, FiMaximize2, FiUpload, FiX } from "react-icons/fi";
 
 // internal
 import * as outreachService from "../services/outreachService";
@@ -23,6 +23,115 @@ export type OutreachFormInitial = {
   pitchDeckFileName?: string | null;
   reportFileName?: string | null;
 };
+
+function fileKind(name: string): { badge: string; kind: string; tone: string } {
+  const lower = name.toLowerCase();
+  if (lower.endsWith(".pdf")) {
+    return { badge: "PDF", kind: "PDF document", tone: "is-pdf" };
+  }
+  if (lower.endsWith(".docx")) {
+    return { badge: "DOCX", kind: "DOCX document", tone: "is-docx" };
+  }
+  if (lower.endsWith(".txt")) {
+    return { badge: "TXT", kind: "TXT document", tone: "is-txt" };
+  }
+  return { badge: "FILE", kind: "document", tone: "" };
+}
+
+function ReplaceFileField({
+  label,
+  currentName,
+  chooseLabel,
+  selectHint,
+  loggedHint,
+  accept,
+  inputKey,
+  selected,
+  onSelected,
+  onClear,
+  canView,
+  viewing,
+  onView,
+}: {
+  label: string;
+  currentName: string;
+  chooseLabel: string;
+  selectHint: string;
+  loggedHint: string;
+  accept: string;
+  inputKey: number;
+  selected: File | null;
+  onSelected: (file: File | null) => void;
+  onClear: () => void;
+  canView: boolean;
+  viewing: boolean;
+  onView: () => void;
+}) {
+  const kind = fileKind(currentName);
+
+  return (
+    <div className="replace-file">
+      <div className="replace-file-label">{label}</div>
+
+      <div className="replace-file-current">
+        <span className={`replace-file-mark ${kind.tone}`} aria-hidden>
+          <span>{kind.badge}</span>
+        </span>
+        <div className="replace-file-meta">
+          <strong title={currentName}>{currentName}</strong>
+          <span>Current file - {kind.kind}</span>
+        </div>
+        {canView && (
+          <button
+            className="btn btn-ghost btn-sm replace-file-view"
+            type="button"
+            onClick={onView}
+            disabled={viewing}
+          >
+            <FiExternalLink size={14} />
+            {viewing ? "Opening…" : "View"}
+          </button>
+        )}
+      </div>
+
+      <div className="replace-file-sub">Upload a replacement (optional)</div>
+
+      <div
+        className={`replace-file-drop ${selected ? "is-selected" : ""}`}
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => {
+          event.preventDefault();
+          onSelected(event.dataTransfer.files?.[0] ?? null);
+        }}
+      >
+        <label>
+          <FiUpload size={16} aria-hidden />
+          <span className="replace-file-copy">
+            <strong>{selected ? selected.name : chooseLabel}</strong>
+            <span>{selectHint}</span>
+          </span>
+          <input
+            key={inputKey}
+            type="file"
+            accept={accept}
+            onChange={(event) => onSelected(event.target.files?.[0] ?? null)}
+          />
+        </label>
+        {selected && (
+          <button
+            className="replace-file-clear"
+            type="button"
+            onClick={onClear}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
+      <p className="replace-file-note">{loggedHint}</p>
+    </div>
+  );
+}
 
 export default function OutreachFormModal({
   initial,
@@ -51,10 +160,28 @@ export default function OutreachFormModal({
   const [savedId, setSavedId] = useState<number | null>(initial?.id ?? null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [viewing, setViewing] = useState<"deck" | "report" | null>(null);
   const [notesExpanded, setNotesExpanded] = useState(false);
 
   const set = (key: keyof typeof form, value: string) =>
     setForm((current) => ({ ...current, [key]: value }));
+
+  const viewStoredFile = async (which: "deck" | "report", fileName: string) => {
+    if (initial?.id == null) return;
+    setViewing(which);
+    setError(null);
+    try {
+      if (which === "deck") {
+        await outreachService.downloadPitchDeck(initial.id, fileName);
+      } else {
+        await outreachService.downloadReport(initial.id, fileName);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't open that file.");
+    } finally {
+      setViewing(null);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!form.companyName.trim()) {
@@ -268,35 +395,134 @@ export default function OutreachFormModal({
           </div>
         </div>
 
-        <div className="field">
-          <label>Pitch deck (PDF)</label>
-          <input
-            key={deckInputKey}
-            type="file"
+        {initial?.pitchDeckFileName ? (
+          <ReplaceFileField
+            label="Pitch deck (PDF)"
+            currentName={initial.pitchDeckFileName}
+            chooseLabel="Choose a new PDF"
+            selectHint="Selecting a file will replace the current pitch deck."
+            loggedHint="Uploading a new PDF replaces the existing file, and the replacement is logged."
             accept="application/pdf,.pdf"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            inputKey={deckInputKey}
+            selected={file}
+            onSelected={setFile}
+            onClear={() => {
+              setFile(null);
+              setDeckInputKey((key) => key + 1);
+            }}
+            canView={initial.id != null}
+            viewing={viewing === "deck"}
+            onView={() =>
+              viewStoredFile("deck", initial.pitchDeckFileName as string)
+            }
           />
-          <div className="field-hint">
-            {initial?.pitchDeckFileName
-              ? `Current file: ${initial.pitchDeckFileName}. Uploading a new PDF replaces it, and that replacement is logged.`
-              : "Optional. A new upload is logged."}
+        ) : (
+          <div className="field">
+            <label>Pitch deck (PDF)</label>
+            <div
+              className={`replace-file-drop ${file ? "is-selected" : ""}`}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => {
+                event.preventDefault();
+                setFile(event.dataTransfer.files?.[0] ?? null);
+              }}
+            >
+              <label>
+                <FiUpload size={16} aria-hidden />
+                <span className="replace-file-copy">
+                  <strong>{file ? file.name : "Choose a PDF"}</strong>
+                  <span>Optional. A new upload is logged.</span>
+                </span>
+                <input
+                  key={deckInputKey}
+                  type="file"
+                  accept="application/pdf,.pdf"
+                  onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                />
+              </label>
+              {file && (
+                <button
+                  className="replace-file-clear"
+                  type="button"
+                  onClick={() => {
+                    setFile(null);
+                    setDeckInputKey((key) => key + 1);
+                  }}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="field">
-          <label>Findings report (DOCX, TXT or PDF)</label>
-          <input
-            key={reportInputKey}
-            type="file"
+        {initial?.reportFileName ? (
+          <ReplaceFileField
+            label="Findings report (DOCX, TXT or PDF)"
+            currentName={initial.reportFileName}
+            chooseLabel="Choose a new report"
+            selectHint="Selecting a file will replace the current findings report."
+            loggedHint="Uploading a new report replaces the existing file, and the replacement is logged."
             accept=".docx,.txt,.pdf,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            onChange={(e) => setReportFile(e.target.files?.[0] ?? null)}
+            inputKey={reportInputKey}
+            selected={reportFile}
+            onSelected={setReportFile}
+            onClear={() => {
+              setReportFile(null);
+              setReportInputKey((key) => key + 1);
+            }}
+            canView={initial.id != null}
+            viewing={viewing === "report"}
+            onView={() =>
+              viewStoredFile("report", initial.reportFileName as string)
+            }
           />
-          <div className="field-hint">
-            {initial?.reportFileName
-              ? `Current file: ${initial.reportFileName}. Uploading a new report replaces it, and that replacement is logged.`
-              : "Optional. The report of what we found out about this company. A new upload is logged."}
+        ) : (
+          <div className="field">
+            <label>Findings report (DOCX, TXT or PDF)</label>
+            <div
+              className={`replace-file-drop ${reportFile ? "is-selected" : ""}`}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => {
+                event.preventDefault();
+                setReportFile(event.dataTransfer.files?.[0] ?? null);
+              }}
+            >
+              <label>
+                <FiUpload size={16} aria-hidden />
+                <span className="replace-file-copy">
+                  <strong>
+                    {reportFile ? reportFile.name : "Choose a report"}
+                  </strong>
+                  <span>
+                    Optional. The report of what we found out about this
+                    company. A new upload is logged.
+                  </span>
+                </span>
+                <input
+                  key={reportInputKey}
+                  type="file"
+                  accept=".docx,.txt,.pdf,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  onChange={(event) =>
+                    setReportFile(event.target.files?.[0] ?? null)
+                  }
+                />
+              </label>
+              {reportFile && (
+                <button
+                  className="replace-file-clear"
+                  type="button"
+                  onClick={() => {
+                    setReportFile(null);
+                    setReportInputKey((key) => key + 1);
+                  }}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         <div
           style={{
