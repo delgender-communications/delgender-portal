@@ -1,0 +1,75 @@
+.doc-header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.doc-file {
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+
+.doc-row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.doc-pick-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 6px 12px;
+}
+
+.doc-pick-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.doc-pick-list li:last-child {
+  border-bottom: none;
+}
+
+.doc-pick-list .checkbox-row {
+  align-items: flex-start;
+}
+
+.doc-pick-list .checkbox-row input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.doc-pick-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.doc-pick-title {
+  color: var(--text);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .doc-header-actions {
+    width: 100%;
+  }
+
+  .doc-header-actions .btn {
+    flex: 1;
+  }
+
+  .doc-row-actions {
+    justify-content: flex-start;
+  }
+}
