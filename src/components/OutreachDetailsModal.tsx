@@ -348,9 +348,9 @@ export default function OutreachDetailsModal({
                 </p>
                 <p className="text-small" style={{ marginBottom: 12 }}>
                   If you don't want to handle the email yourself, click{" "}
-                  <strong>Email the client</strong> and the system will send
-                  everything we found to the client for you. You don't have to
-                  do anything.
+                  <strong>Email the client</strong> and the system will send the
+                  pitch deck based on the information we found to the client for
+                  you. You don't have to do anything.
                 </p>
 
                 {confirming === null ? (
@@ -436,10 +436,7 @@ export default function OutreachDetailsModal({
                   <FiMaximize2 size={14} />
                 </button>
               </div>
-              <div className="field-hint">
-                Notes can be edited by anyone and are not added to the activity
-                log.
-              </div>
+              <div className="field-hint">Notes can be edited by anyone.</div>
               <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                 <button
                   className="btn btn-ghost btn-sm"

@@ -153,8 +153,6 @@ export default function OutreachFormModal({
   });
   const [file, setFile] = useState<File | null>(null);
   const [reportFile, setReportFile] = useState<File | null>(null);
-  // Changing a file input's key clears it, so a file that already uploaded
-  // isn't shown (or sent) again if the other upload needs a retry.
   const [deckInputKey, setDeckInputKey] = useState(0);
   const [reportInputKey, setReportInputKey] = useState(0);
   const [savedId, setSavedId] = useState<number | null>(initial?.id ?? null);
@@ -304,7 +302,7 @@ export default function OutreachFormModal({
             </h2>
             <p className="text-muted text-small" style={{ marginTop: 4 }}>
               {isEdit
-                ? "Anything here can be changed. Notes are not written to the activity log."
+                ? "Anything here can be changed at any time."
                 : "Record a company we want to work with. You can set any status now."}
             </p>
           </div>
@@ -401,7 +399,7 @@ export default function OutreachFormModal({
             currentName={initial.pitchDeckFileName}
             chooseLabel="Choose a new PDF"
             selectHint="Selecting a file will replace the current pitch deck."
-            loggedHint="Uploading a new PDF replaces the existing file, and the replacement is logged."
+            loggedHint="Uploading a new PDF replaces the existing file."
             accept="application/pdf,.pdf"
             inputKey={deckInputKey}
             selected={file}
@@ -462,7 +460,7 @@ export default function OutreachFormModal({
             currentName={initial.reportFileName}
             chooseLabel="Choose a new report"
             selectHint="Selecting a file will replace the current findings report."
-            loggedHint="Uploading a new report replaces the existing file, and the replacement is logged."
+            loggedHint="Uploading a new report replaces the existing file."
             accept=".docx,.txt,.pdf,application/pdf,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             inputKey={reportInputKey}
             selected={reportFile}
