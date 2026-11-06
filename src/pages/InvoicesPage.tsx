@@ -9,6 +9,7 @@ import type { Invoice } from "../services/invoiceService";
 import StatusBadge from "../components/StatusBadge";
 import InvoiceEditorModal from "../components/InvoiceEditorModal";
 import InvoiceDetailsModal from "../components/InvoiceDetailsModal";
+import { TableSkeletonRows } from "../components/Skeleton";
 import { formatCurrency, formatDate } from "../utils/format";
 import { displayStatus, isOverdue } from "../utils/invoiceHelpers";
 import "./ListPage.css";
@@ -89,11 +90,9 @@ export default function InvoicesPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={5} className="empty-row">
-                    Loading…
-                  </td>
-                </tr>
+                <TableSkeletonRows
+                  cells={["short", "title", "short", "short", "badge"]}
+                />
               ) : invoices.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="empty-row">

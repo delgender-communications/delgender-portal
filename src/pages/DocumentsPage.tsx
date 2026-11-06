@@ -10,6 +10,7 @@ import type { TeamDocument } from "../services/documentService";
 import { formatDate } from "../utils/format";
 import DocumentFormModal from "../components/DocumentFormModal";
 import EmailDocumentsModal from "../components/EmailDocumentsModal";
+import { TableSkeletonRows } from "../components/Skeleton";
 import "./ListPage.css";
 import "./DocumentsPage.css";
 
@@ -85,8 +86,8 @@ export default function DocumentsPage() {
         <div>
           <h1>Documents</h1>
           <p className="text-muted">
-            Essential documents for the whole team. Anyone
-            can add one, download it, or email it to a client.
+            Essential documents for the whole team. Anyone can add one, download
+            it, or email it to a client.
           </p>
         </div>
         <div className="doc-header-actions">
@@ -127,11 +128,9 @@ export default function DocumentsPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={4} className="empty-row">
-                    Loading…
-                  </td>
-                </tr>
+                <TableSkeletonRows
+                  cells={["title", "text", "short", "action"]}
+                />
               ) : documents.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="empty-row">

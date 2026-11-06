@@ -11,6 +11,7 @@ import {
 } from "../services/researchLeadService";
 import type { ResearchLead } from "../services/researchLeadService";
 import ResearchLeadFormModal from "./ResearchLeadFormModal";
+import { Skeleton, SkeletonLabel } from "./Skeleton";
 
 const PAGE_SIZE = 5;
 
@@ -126,7 +127,21 @@ export default function ResearchLeadsPanel({
       )}
 
       {loading && leads.length === 0 ? (
-        <div className="outreach-recommended-empty">Loading…</div>
+        <ul className="lead-list">
+          <SkeletonLabel text="Loading leads" />
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="lead-item">
+              <div className="lead-main" style={{ flex: 1, gap: 8 }}>
+                <div className="skeleton-inline">
+                  <Skeleton width={150} height={15} />
+                  <Skeleton width={64} height={22} radius={999} />
+                </div>
+                <Skeleton width="60%" height={12} />
+              </div>
+              <Skeleton width={96} height={30} radius={8} />
+            </li>
+          ))}
+        </ul>
       ) : leads.length === 0 ? (
         <div className="outreach-recommended-empty">
           No new leads right now. New ones show up here when the research agent

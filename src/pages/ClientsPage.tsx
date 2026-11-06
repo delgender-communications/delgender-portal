@@ -8,6 +8,7 @@ import { ClientStatus } from "../services/clientsService";
 import type { Client } from "../services/clientsService";
 import AddClientModal from "../components/AddClientModal";
 import ChangeClientStatusModal from "../components/ChangeClientStatusModal";
+import { TableSkeletonRows } from "../components/Skeleton";
 import { formatDuration } from "../utils/format";
 import "./ListPage.css";
 
@@ -112,11 +113,9 @@ export default function ClientsPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={6} className="empty-row">
-                    Loading…
-                  </td>
-                </tr>
+                <TableSkeletonRows
+                  cells={["title", "title", "text", "text", "badge", "action"]}
+                />
               ) : clients.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="empty-row">

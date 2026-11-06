@@ -6,6 +6,7 @@ import * as bookingService from "../services/bookingService";
 import { BookingStatus } from "../services/bookingService";
 import type { Booking } from "../services/bookingService";
 import StatusBadge from "../components/StatusBadge";
+import { TableSkeletonRows } from "../components/Skeleton";
 import RespondBookingModal from "../components/RespondBookingModal";
 import BookingDetailsModal from "../components/BookingDetailsModal";
 import { formatDate } from "../utils/format";
@@ -96,11 +97,9 @@ export default function BookingsPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={5} className="empty-row">
-                    Loading…
-                  </td>
-                </tr>
+                <TableSkeletonRows
+                  cells={["title", "text", "text", "badge", "action"]}
+                />
               ) : bookings.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="empty-row">

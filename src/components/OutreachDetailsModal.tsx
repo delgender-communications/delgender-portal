@@ -7,6 +7,8 @@ import * as outreachService from "../services/outreachService";
 import { OUTREACH_STATUSES, OutreachStatus } from "../services/outreachService";
 import type { OutreachDetail } from "../services/outreachService";
 import NotesExpandedModal from "./NotesExpandedModal";
+import InfoTip from "./InfoTip";
+import { Skeleton, SkeletonLabel } from "./Skeleton";
 
 function formatLogTime(value: string): string {
   return new Date(value).toLocaleString("en-ZA", {
@@ -16,6 +18,42 @@ function formatLogTime(value: string): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function OutreachDetailsSkeleton() {
+  return (
+    <>
+      <SkeletonLabel text="Loading company" />
+
+      <div style={{ marginBottom: 16 }}>
+        <Skeleton width={90} height={24} radius={999} />
+        <Skeleton width="55%" height={12} style={{ marginTop: 12 }} />
+      </div>
+
+      <div className="detail-grid">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div className="detail-item" key={i}>
+            <Skeleton width={70} height={11} style={{ marginBottom: 8 }} />
+            <Skeleton width={i % 2 ? "70%" : "85%"} height={15} />
+          </div>
+        ))}
+      </div>
+
+      <div className="field" style={{ marginTop: 20 }}>
+        <Skeleton width={50} height={13} />
+        <Skeleton height={90} radius={10} />
+      </div>
+
+      <div className="response-block">
+        <Skeleton width={70} height={11} style={{ marginBottom: 14 }} />
+        <div className="skeleton-stack" style={{ gap: 12 }}>
+          <Skeleton width="80%" height={13} />
+          <Skeleton width="65%" height={13} />
+          <Skeleton width="72%" height={13} />
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default function OutreachDetailsModal({
@@ -171,14 +209,23 @@ export default function OutreachDetailsModal({
       >
         <div className="modal-header">
           <div>
-            <h2 style={{ fontSize: 19 }}>
-              {company?.companyName ?? "Company"}
-            </h2>
-            {company && (
-              <p className="text-muted text-small" style={{ marginTop: 4 }}>
-                Added by {company.addedByName} ·{" "}
-                {formatLogTime(company.createdAt)}
-              </p>
+            {loading ? (
+              <>
+                <Skeleton width={190} height={22} />
+                <Skeleton width={230} height={12} style={{ marginTop: 10 }} />
+              </>
+            ) : (
+              <>
+                <h2 style={{ fontSize: 19 }}>
+                  {company?.companyName ?? "Company"}
+                </h2>
+                {company && (
+                  <p className="text-muted text-small" style={{ marginTop: 4 }}>
+                    Added by {company.addedByName} ·{" "}
+                    {formatLogTime(company.createdAt)}
+                  </p>
+                )}
+              </>
             )}
           </div>
           <button className="modal-close" onClick={onClose} type="button">
@@ -189,13 +236,41 @@ export default function OutreachDetailsModal({
         {error && <div className="form-error-banner">{error}</div>}
 
         {loading || !company ? (
-          <p className="text-muted">{loading ? "Loading…" : "Not found."}</p>
+          loading ? (
+            <OutreachDetailsSkeleton />
+          ) : (
+            <p className="text-muted">Not found.</p>
+          )
         ) : (
           <>
             <div style={{ marginBottom: 16 }}>
-              <span className={`badge ${statusMeta?.badge ?? "badge-draft"}`}>
-                {statusMeta?.label ?? company.status}
-              </span>
+              <div className="info-tip-anchor">
+                <span className={`badge ${statusMeta?.badge ?? "badge-draft"}`}>
+                  {statusMeta?.label ?? company.status}
+                </span>
+                <InfoTip
+                  label="What each status means"
+                  title="What each status means"
+                >
+                  <ul className="status-tip-list">
+                    {OUTREACH_STATUSES.map((status) => (
+                      <li
+                        key={status.value}
+                        className={
+                          status.value === company.status
+                            ? "current"
+                            : undefined
+                        }
+                      >
+                        <span className={`badge ${status.badge}`}>
+                          {status.label}
+                        </span>
+                        <span>{status.description}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </InfoTip>
+              </div>
               <p className="text-muted text-small" style={{ marginTop: 8 }}>
                 {statusMeta?.description}
               </p>
@@ -339,20 +414,6 @@ export default function OutreachDetailsModal({
                 )}
               </div>
             )}
-
-            <div className="field">
-              <label>What each status means</label>
-              <ul className="status-legend" style={{ marginBottom: 0 }}>
-                {OUTREACH_STATUSES.map((status) => (
-                  <li key={status.value}>
-                    <span className={`badge ${status.badge}`}>
-                      {status.label}
-                    </span>
-                    <span>{status.description}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
 
             <div className="field">
               <label>Notes</label>

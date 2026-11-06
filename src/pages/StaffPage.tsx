@@ -8,6 +8,7 @@ import type { Staff } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 import AddStaffModal from "../components/AddStaffModal";
 import StaffAvatar from "../components/StaffAvatar";
+import { TableSkeletonRows } from "../components/Skeleton";
 import { formatDateTime } from "../utils/format";
 import "./ListPage.css";
 
@@ -111,11 +112,21 @@ export default function StaffPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={columnCount} className="empty-row">
-                    Loading…
-                  </td>
-                </tr>
+                <TableSkeletonRows
+                  cells={
+                    isAdmin
+                      ? [
+                          "avatar",
+                          "short",
+                          "text",
+                          "badge",
+                          "badge",
+                          "text",
+                          "action",
+                        ]
+                      : ["avatar", "short", "text"]
+                  }
+                />
               ) : staffList.length === 0 ? (
                 <tr>
                   <td colSpan={columnCount} className="empty-row">

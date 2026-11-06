@@ -6,6 +6,11 @@ import { FiUsers, FiEye, FiArrowUp, FiArrowDown } from "react-icons/fi";
 import * as analyticsService from "../services/analyticsService";
 import type { AnalyticsSummary } from "../services/analyticsService";
 import TrendChart from "../components/TrendChart";
+import {
+  Skeleton,
+  SkeletonLabel,
+  TableSkeletonRows,
+} from "../components/Skeleton";
 import { pageLabel } from "../utils/pageLabels";
 import { formatDateTime } from "../utils/format";
 import "./DashboardPage.css";
@@ -66,9 +71,7 @@ export default function DashboardPage() {
       {error && <div className="form-error-banner">{error}</div>}
 
       {loading || !summary ? (
-        <div className="centered-loader">
-          <div className="spinner" />
-        </div>
+        <DashboardSkeleton />
       ) : (
         <>
           <div className="stat-grid">
@@ -233,5 +236,74 @@ function StatCard({
         </div>
       </div>
     </div>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <>
+      <SkeletonLabel text="Loading analytics" />
+
+      <div className="stat-grid">
+        {[0, 1].map((i) => (
+          <div className="card stat-card" key={i}>
+            <Skeleton
+              width={46}
+              height={46}
+              radius="50%"
+              style={{ flexShrink: 0 }}
+            />
+            <div className="skeleton-stack">
+              <Skeleton width={90} height={13} />
+              <Skeleton width={120} height={28} radius={8} />
+              <Skeleton width={140} height={12} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="dashboard-grid">
+        <div className="card">
+          <div className="chart-header">
+            <Skeleton width={160} height={16} />
+            <Skeleton width={130} height={12} />
+          </div>
+          <Skeleton height={260} radius={10} />
+        </div>
+
+        <div className="card">
+          <Skeleton width={120} height={16} style={{ marginBottom: 18 }} />
+          <div className="top-pages-list">
+            {[88, 64, 52, 38, 24].map((w) => (
+              <div key={w}>
+                <div className="top-page-label">
+                  <Skeleton width={90} height={13} />
+                  <Skeleton width={24} height={13} />
+                </div>
+                <Skeleton width={`${w}%`} height={7} radius={999} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginTop: 22 }}>
+        <Skeleton width={110} height={16} style={{ marginBottom: 12 }} />
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Page Visited</th>
+                <th>Referrer</th>
+              </tr>
+            </thead>
+            <tbody>
+              <TableSkeletonRows cells={["short", "text", "text"]} rows={5} />
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
   );
 }

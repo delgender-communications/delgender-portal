@@ -14,6 +14,7 @@ import OutreachFormModal, {
 } from "../components/OutreachFormModal";
 import OutreachDetailsModal from "../components/OutreachDetailsModal";
 import ResearchLeadsPanel from "../components/ResearchLeadsPanel";
+import { TableSkeletonRows } from "../components/Skeleton";
 import "./ListPage.css";
 import "./OutreachPage.css";
 
@@ -151,11 +152,9 @@ export default function OutreachPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={5} className="empty-row">
-                    Loading…
-                  </td>
-                </tr>
+                <TableSkeletonRows
+                  cells={["title", "text", "text", "text", "action"]}
+                />
               ) : companies.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="empty-row">

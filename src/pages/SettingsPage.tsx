@@ -20,6 +20,7 @@ import * as authService from "../services/authService";
 import type { TrustedDevice } from "../services/authService";
 import * as staffService from "../services/staffService";
 import { initials, formatDate, formatDateTime } from "../utils/format";
+import { Skeleton, SkeletonLabel } from "../components/Skeleton";
 import "./ListPage.css";
 import "./DashboardPage.css";
 
@@ -280,8 +281,25 @@ export default function SettingsPage() {
         </p>
 
         {devicesLoading ? (
-          <div className="centered-loader" style={{ padding: "30px 0" }}>
-            <div className="spinner" />
+          <div className="device-list">
+            <SkeletonLabel text="Loading trusted devices" />
+            {[0, 1].map((i) => (
+              <div className="device-card" key={i}>
+                <Skeleton
+                  width={38}
+                  height={38}
+                  radius={10}
+                  style={{ flexShrink: 0 }}
+                />
+                <div className="device-info">
+                  <div className="skeleton-stack">
+                    <Skeleton width="50%" height={14} />
+                    <Skeleton width="75%" height={11} />
+                  </div>
+                </div>
+                <Skeleton width={84} height={30} radius={8} />
+              </div>
+            ))}
           </div>
         ) : devices.length === 0 ? (
           <p className="text-muted text-small">No trusted devices.</p>
