@@ -9,6 +9,7 @@ import BookingsPage from "./pages/BookingsPage";
 import ClientsPage from "./pages/ClientsPage";
 import DocumentsPage from "./pages/DocumentsPage";
 import OutreachPage from "./pages/OutreachPage";
+import OutreachCompanyPage from "./pages/OutreachCompanyPage";
 import InvoicesPage from "./pages/InvoicesPage";
 import StaffPage from "./pages/StaffPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -32,6 +33,11 @@ export default function App() {
           <Route path="/clients" element={<ClientsPage />} />
           <Route path="/documents" element={<DocumentsPage />} />
           <Route path="/outreach" element={<OutreachPage />} />
+          <Route
+            path="/outreach/new"
+            element={<OutreachCompanyPage creating />}
+          />
+          <Route path="/outreach/:id/*" element={<OutreachCompanyPage />} />
           <Route path="/invoices" element={<InvoicesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/staff" element={<StaffPage />} />

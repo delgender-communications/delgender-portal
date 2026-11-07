@@ -1,18 +1,20 @@
 // external
 import { useEffect, useState, type MouseEvent } from "react";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { FiDownload, FiEdit2, FiPlus } from "react-icons/fi";
 
 // internal
 import * as outreachService from "../services/outreachService";
-import { OUTREACH_STATUSES, OutreachStatus } from "../services/outreachService";
+import { OUTREACH_STATUSES } from "../services/outreachService";
 import type {
-  OutreachDetail,
   OutreachListItem,
+  OutreachStatus,
 } from "../services/outreachService";
-import OutreachFormModal, {
-  type OutreachFormInitial,
-} from "../components/OutreachFormModal";
-import OutreachDetailsModal from "../components/OutreachDetailsModal";
 import ResearchLeadsPanel from "../components/ResearchLeadsPanel";
 import { TableSkeletonRows } from "../components/Skeleton";
 import "./ListPage.css";
@@ -27,15 +29,29 @@ const TABS: { label: string; value?: OutreachStatus }[] = [
 ];
 
 export default function OutreachPage() {
-  const [tab, setTab] = useState(0);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [params, setParams] = useSearchParams();
+
+  // Tab and page live in the address so coming back from a company lands on
+  // the same list.
+  const rawTab = Number(params.get("tab"));
+  const tab =
+    Number.isInteger(rawTab) && rawTab >= 0 && rawTab < TABS.length
+      ? rawTab
+      : 0;
+  const page = Math.max(1, Math.floor(Number(params.get("page"))) || 1);
+
+  const showList = (nextTab: number, nextPage: number) => {
+    const next = new URLSearchParams();
+    if (nextTab > 0) next.set("tab", String(nextTab));
+    if (nextPage > 1) next.set("page", String(nextPage));
+    setParams(next);
+  };
+
   const [companies, setCompanies] = useState<OutreachListItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [showForm, setShowForm] = useState<OutreachFormInitial | null>(null);
-  const [creating, setCreating] = useState(false);
-  const [viewingId, setViewingId] = useState<number | null>(null);
-  const [detailVersion, setDetailVersion] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
@@ -55,23 +71,26 @@ export default function OutreachPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, page]);
 
-  const openCreate = () => {
-    setCreating(true);
-    setShowForm({ status: OutreachStatus.Researching });
-  };
+  const here = `${location.pathname}${location.search}`;
 
-  const openEdit = async (event: MouseEvent, id: number) => {
+  const openCreate = () => navigate("/outreach/new", { state: { from: here } });
+
+  const openCompany = (company: OutreachListItem) =>
+    navigate(`/outreach/${company.id}`, {
+      state: {
+        from: here,
+        preview: { companyName: company.companyName, status: company.status },
+      },
+    });
+
+  const openEdit = (event: MouseEvent, company: OutreachListItem) => {
     event.stopPropagation();
-    setError(null);
-    try {
-      const detail = await outreachService.getOutreachById(id);
-      setCreating(false);
-      setShowForm(detail);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Couldn't open that company.",
-      );
-    }
+    navigate(`/outreach/${company.id}/edit`, {
+      state: {
+        from: here,
+        preview: { companyName: company.companyName, status: company.status },
+      },
+    });
   };
 
   const handleDownload = async (
@@ -105,7 +124,7 @@ export default function OutreachPage() {
             then email it.
           </p>
         </div>
-        <button className="btn btn-primary" onClick={() => openCreate()}>
+        <button className="btn btn-primary" onClick={openCreate}>
           <FiPlus size={16} /> Add company
         </button>
       </div>
@@ -128,10 +147,7 @@ export default function OutreachPage() {
           <button
             key={item.label}
             className={`pill-tab ${tab === index ? "active" : ""}`}
-            onClick={() => {
-              setTab(index);
-              setPage(1);
-            }}
+            onClick={() => showList(index, 1)}
           >
             {item.label}
           </button>
@@ -170,12 +186,24 @@ export default function OutreachPage() {
                     <tr
                       key={company.id}
                       className="clickable"
-                      onClick={() => setViewingId(company.id)}
+                      onClick={() => openCompany(company)}
                     >
                       <td>
-                        <div style={{ fontWeight: 600 }}>
+                        <Link
+                          className="row-link"
+                          to={`/outreach/${company.id}`}
+                          state={{
+                            from: here,
+                            preview: {
+                              companyName: company.companyName,
+                              status: company.status,
+                            },
+                          }}
+                          onClick={(event) => event.stopPropagation()}
+                          style={{ fontWeight: 600 }}
+                        >
                           {company.companyName}
-                        </div>
+                        </Link>
                         <div style={{ marginTop: 6 }}>
                           <span
                             className={`badge ${status?.badge ?? "badge-draft"}`}
@@ -216,7 +244,7 @@ export default function OutreachPage() {
                         <button
                           className="btn btn-ghost btn-sm"
                           type="button"
-                          onClick={(event) => openEdit(event, company.id)}
+                          onClick={(event) => openEdit(event, company)}
                         >
                           <FiEdit2 size={14} /> Edit
                         </button>
@@ -234,7 +262,7 @@ export default function OutreachPage() {
             <button
               className="btn btn-ghost btn-sm"
               disabled={page <= 1}
-              onClick={() => setPage((current) => current - 1)}
+              onClick={() => showList(tab, page - 1)}
             >
               Previous
             </button>
@@ -244,42 +272,13 @@ export default function OutreachPage() {
             <button
               className="btn btn-ghost btn-sm"
               disabled={page >= totalPages}
-              onClick={() => setPage((current) => current + 1)}
+              onClick={() => showList(tab, page + 1)}
             >
               Next
             </button>
           </div>
         )}
       </div>
-
-      {showForm && (
-        <OutreachFormModal
-          initial={creating ? showForm : (showForm as OutreachDetail)}
-          onClose={() => {
-            setShowForm(null);
-            load();
-          }}
-          onSaved={() => {
-            setShowForm(null);
-            setDetailVersion((version) => version + 1);
-            load();
-          }}
-        />
-      )}
-
-      {viewingId != null && (
-        <OutreachDetailsModal
-          key={`${viewingId}-${detailVersion}`}
-          id={viewingId}
-          onClose={() => setViewingId(null)}
-          onChanged={load}
-          onEdit={(detail) => {
-            setViewingId(null);
-            setCreating(false);
-            setShowForm(detail);
-          }}
-        />
-      )}
     </div>
   );
 }

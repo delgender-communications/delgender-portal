@@ -1,6 +1,10 @@
 import axios from "axios";
 import { api, extractErrorMessage } from "./api";
 import type { PagedResult } from "./types";
+import type {
+  ResearchLeadCase,
+  ResearchLeadEvidence,
+} from "./researchLeadService";
 
 export const OutreachStatus = {
   Researching: "Researching",
@@ -63,6 +67,21 @@ export interface OutreachLog {
   createdAt: string;
 }
 
+// What the research found, from the lead this company was accepted from.
+// Companies added by hand don't have it.
+export interface OutreachResearch {
+  leadId: number;
+  website?: string | null;
+  industry?: string | null;
+  location?: string | null;
+  case: ResearchLeadCase;
+  score?: number | null;
+  summary?: string | null;
+  foundBy: string;
+  foundAt: string;
+  evidence: ResearchLeadEvidence[];
+}
+
 export interface OutreachDetail {
   id: number;
   companyName: string;
@@ -81,6 +100,7 @@ export interface OutreachDetail {
   addedByName: string;
   createdAt: string;
   updatedAt: string;
+  research?: OutreachResearch | null;
   logs: OutreachLog[];
 }
 

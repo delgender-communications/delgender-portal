@@ -47,8 +47,7 @@
   top: calc(100% + 8px);
   left: 0;
   z-index: 30;
-  width: 340px;
-  max-width: 100%;
+  width: min(340px, calc(100vw - 56px));
   padding: 14px 16px;
   background: var(--card-bg-hover);
   border: 1px solid var(--border-strong);
