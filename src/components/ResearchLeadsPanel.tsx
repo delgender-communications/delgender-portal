@@ -7,13 +7,19 @@ import * as researchLeadService from "../services/researchLeadService";
 import {
   ResearchLeadStatus,
   caseLabel,
+  researchChecklist,
   safeWebUrl,
 } from "../services/researchLeadService";
-import type { ResearchLead } from "../services/researchLeadService";
+import type {
+  ResearchLead,
+  ResearchLeadCounts,
+} from "../services/researchLeadService";
 import ResearchLeadFormModal from "./ResearchLeadFormModal";
 import { Skeleton, SkeletonLabel } from "./Skeleton";
 
 const PAGE_SIZE = 5;
+
+type Tab = "recommended" | "research";
 
 export default function ResearchLeadsPanel({
   onAccepted,
@@ -21,7 +27,6 @@ export default function ResearchLeadsPanel({
   onAccepted: () => void;
 }) {
   const [leads, setLeads] = useState<ResearchLead[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -31,11 +36,33 @@ export default function ResearchLeadsPanel({
   const [dismissingId, setDismissingId] = useState<number | null>(null);
   const [reason, setReason] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [tab, setTab] = useState<Tab>("recommended");
+  const [counts, setCounts] = useState<ResearchLeadCounts | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     researchLeadService
-      .getResearchLeads(page, PAGE_SIZE, ResearchLeadStatus.New)
+      .getResearchLeadCounts()
+      .then((res) => {
+        if (!cancelled) setCounts(res);
+      })
+      .catch(() => {
+        // The tab badges are a nice-to-have, so a failure here stays quiet.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [version]);
+
+  useEffect(() => {
+    let cancelled = false;
+    researchLeadService
+      .getResearchLeads(
+        page,
+        PAGE_SIZE,
+        ResearchLeadStatus.New,
+        tab === "research",
+      )
       .then((res) => {
         if (cancelled) return;
         // The last lead on a page was just handled, so step back one page.
@@ -44,7 +71,6 @@ export default function ResearchLeadsPanel({
           return;
         }
         setLeads(res.data);
-        setTotal(res.totalCount);
         setTotalPages(res.totalPages || 1);
       })
       .catch(() => {
@@ -56,9 +82,21 @@ export default function ResearchLeadsPanel({
     return () => {
       cancelled = true;
     };
-  }, [page, version]);
+  }, [page, version, tab]);
 
   const refresh = () => setVersion((current) => current + 1);
+
+  const switchTab = (next: Tab) => {
+    if (next === tab) return;
+    setTab(next);
+    setPage(1);
+    setLeads([]);
+    setTotalPages(1);
+    setLoading(true);
+    setError(null);
+    setDismissingId(null);
+    setReason("");
+  };
 
   const handleAccept = async (lead: ResearchLead) => {
     setBusyId(lead.id);
@@ -101,14 +139,15 @@ export default function ResearchLeadsPanel({
       <div className="lead-header">
         <div>
           <h2>
-            Recommended{" "}
-            {total > 0 && (
-              <span className="badge badge-pending">{total} new</span>
+            Leads{" "}
+            {counts && counts.count > 0 && (
+              <span className="badge badge-pending">{counts.count} new</span>
             )}
           </h2>
           <p className="text-muted text-small">
-            Companies the research agent thinks we could help. Review each one,
-            then add it to outreach or dismiss it.
+            {tab === "recommended"
+              ? "Companies the research agent thinks we could help. Review each one, then add it to outreach or dismiss it."
+              : "Companies the agent couldn't fully judge, or that scored low but look worth a look. Follow the links to see what you find, then add them to outreach or dismiss them."}
           </p>
         </div>
         <button
@@ -118,6 +157,29 @@ export default function ResearchLeadsPanel({
         >
           <FiPlus size={14} /> Add lead by hand
         </button>
+      </div>
+
+      <div className="lead-tabs" role="tablist">
+        {(
+          [
+            ["recommended", "Recommended", counts?.recommended],
+            ["research", "Needs research", counts?.needsResearch],
+          ] as const
+        ).map(([value, label, count]) => (
+          <button
+            key={value}
+            type="button"
+            role="tab"
+            aria-selected={tab === value}
+            className={`lead-tab${tab === value ? " active" : ""}`}
+            onClick={() => switchTab(value)}
+          >
+            {label}
+            {count !== undefined && count > 0 && (
+              <span className="lead-tab-count">{count}</span>
+            )}
+          </button>
+        ))}
       </div>
 
       {error && (
@@ -144,8 +206,9 @@ export default function ResearchLeadsPanel({
         </ul>
       ) : leads.length === 0 ? (
         <div className="outreach-recommended-empty">
-          No new leads right now. New ones show up here when the research agent
-          finds them.
+          {tab === "recommended"
+            ? "No new leads right now. New ones show up here when the research agent finds them."
+            : "Nothing to research right now. Companies the agent couldn't fully judge show up here."}
         </div>
       ) : (
         <ul className="lead-list">
@@ -164,6 +227,19 @@ export default function ResearchLeadsPanel({
                     <span className="badge badge-draft">
                       {caseLabel(lead.case)}
                     </span>
+                    {lead.needsResearch && (
+                      <span className="badge badge-pending">
+                        Needs research
+                      </span>
+                    )}
+                    {lead.siteStack && (
+                      <span
+                        className="lead-chip"
+                        title="What their site is built with"
+                      >
+                        {lead.siteStack}
+                      </span>
+                    )}
                     {lead.score != null && (
                       <span className="text-muted text-small">
                         Score {lead.score}
@@ -187,6 +263,29 @@ export default function ResearchLeadsPanel({
 
                   {lead.summary && (
                     <p className="lead-summary">{lead.summary}</p>
+                  )}
+
+                  {lead.needsResearch && (
+                    <div className="lead-research">
+                      {lead.researchReason && (
+                        <p className="lead-reason text-small">
+                          <strong>What to check:</strong> {lead.researchReason}
+                        </p>
+                      )}
+                      <div className="lead-checklist text-small">
+                        <span className="text-muted">Look into it:</span>
+                        {researchChecklist(lead).map((link) => (
+                          <a
+                            key={link.label}
+                            href={link.url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {link.label}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
                   )}
 
                   {lead.evidence.length > 0 && (

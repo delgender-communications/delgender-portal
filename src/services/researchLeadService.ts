@@ -15,6 +15,7 @@ export const ResearchLeadCase = {
   NoWebsite: "NoWebsite",
   OutdatedWebsite: "OutdatedWebsite",
   Other: "Other",
+  LowVisibility: "LowVisibility",
 } as const;
 export type ResearchLeadCase =
   (typeof ResearchLeadCase)[keyof typeof ResearchLeadCase];
@@ -28,6 +29,7 @@ export const RESEARCH_LEAD_CASES: { value: ResearchLeadCase; label: string }[] =
     },
     { value: ResearchLeadCase.NoWebsite, label: "No website" },
     { value: ResearchLeadCase.OutdatedWebsite, label: "Outdated website" },
+    { value: ResearchLeadCase.LowVisibility, label: "Low online visibility" },
     { value: ResearchLeadCase.Other, label: "Other" },
   ];
 
@@ -47,6 +49,11 @@ export type ResearchLead = {
   case: ResearchLeadCase;
   score?: number | null;
   summary?: string | null;
+  // Set by the agent for companies a person should look into before deciding.
+  needsResearch: boolean;
+  researchReason?: string | null;
+  // What the site is built with, for example "Next.js · Vercel · JS-rendered".
+  siteStack?: string | null;
   status: ResearchLeadStatus;
   dismissReason?: string | null;
   reviewedByName?: string | null;
@@ -92,12 +99,72 @@ export async function getResearchLeads(
   page = 1,
   pageSize = 5,
   status?: ResearchLeadStatus,
+  needsResearch?: boolean,
 ): Promise<PagedResult<ResearchLead>> {
   const { data } = await api.get<PagedResult<ResearchLead>>(
     "/api/v1/research-leads",
-    { params: { page, pageSize, status } },
+    { params: { page, pageSize, status, needsResearch } },
   );
   return data;
+}
+
+export type ResearchLeadCounts = {
+  count: number;
+  recommended: number;
+  needsResearch: number;
+};
+
+// How many new leads each list holds, for the tab badges.
+export async function getResearchLeadCounts(): Promise<ResearchLeadCounts> {
+  const { data } = await api.get<ResearchLeadCounts>(
+    "/api/v1/research-leads/new-count",
+  );
+  return data;
+}
+
+export type ResearchLink = { label: string; url: string };
+
+const googleSearch = (query: string, extra = "") =>
+  `https://www.google.com/search?q=${encodeURIComponent(query)}${extra}`;
+
+// Links a person can follow to look into a company the agent couldn't fully
+// judge. Built from the name and website, so nothing here depends on the agent.
+export function researchChecklist(lead: ResearchLead): ResearchLink[] {
+  const name = lead.companyName;
+  const quoted = `"${name}"`;
+  const links: ResearchLink[] = [];
+
+  const website = safeWebUrl(lead.website);
+  if (website) {
+    links.push({ label: "Open their site", url: website });
+    try {
+      const host = new URL(website).hostname;
+      links.push({
+        label: "Their news or blog",
+        url: googleSearch(`site:${host} news OR blog OR press`),
+      });
+    } catch {
+      // Not a usable address, so skip the site-specific link.
+    }
+  }
+
+  links.push(
+    {
+      label: "LinkedIn",
+      url: `https://www.linkedin.com/search/results/companies/?keywords=${encodeURIComponent(name)}`,
+    },
+    {
+      label: "Instagram / Facebook",
+      url: googleSearch(`${quoted} instagram OR facebook`),
+    },
+    { label: "Recent news", url: googleSearch(quoted, "&tbm=nws") },
+    {
+      label: "Funding or launches",
+      url: googleSearch(`${quoted} funding OR launch OR partnership OR award`),
+    },
+  );
+
+  return links;
 }
 
 export async function addResearchLead(
