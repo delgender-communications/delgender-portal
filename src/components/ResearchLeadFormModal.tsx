@@ -1,4 +1,5 @@
 // external
+import PhoneInput from "./PhoneInput";
 import { useState } from "react";
 import { FiX } from "react-icons/fi";
 
@@ -161,9 +162,9 @@ export default function ResearchLeadFormModal({
 
         <div className="field">
           <label>Phone number</label>
-          <input
+          <PhoneInput
             value={form.phoneNumber}
-            onChange={(e) => set("phoneNumber", e.target.value)}
+            onChange={(v) => set("phoneNumber", v)}
             placeholder="Optional"
           />
         </div>

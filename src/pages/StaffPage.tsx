@@ -7,6 +7,7 @@ import * as staffService from "../services/staffService";
 import type { Staff } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 import AddStaffModal from "../components/AddStaffModal";
+import StaffChangeRequestsPanel from "../components/StaffChangeRequestsPanel";
 import StaffAvatar from "../components/StaffAvatar";
 import { TableSkeletonRows } from "../components/Skeleton";
 import { formatDateTime } from "../utils/format";
@@ -91,6 +92,8 @@ export default function StaffPage() {
       </div>
 
       {error && <div className="form-error-banner">{error}</div>}
+
+      {isAdmin && <StaffChangeRequestsPanel onApproved={load} />}
 
       <div className="card" style={{ padding: 0 }}>
         <div className="table-wrap">

@@ -17,6 +17,8 @@ import {
 
 // internal
 import { useAuth } from "../context/AuthContext";
+import { useNotifications } from "../context/NotificationsContext";
+import { UpdatesBell, UpdatesCount } from "./UpdatesBadge";
 import { initials } from "../utils/format";
 import logo from "../assets/logo-mark.png";
 import "./Layout.css";
@@ -40,6 +42,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function Layout() {
   const { staff, isAdmin, logout } = useAuth();
+  const { badge } = useNotifications();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   if (!staff) {
@@ -84,6 +87,19 @@ export default function Layout() {
               {item.label}
             </NavLink>
           ))}
+
+          {/* Pinned to the bottom of the list, just above the line over Settings. */}
+          <NavLink
+            to="/updates"
+            className={({ isActive }) =>
+              `sidebar-link sidebar-updates ${isActive ? "active" : ""}`
+            }
+            onClick={() => setMobileOpen(false)}
+          >
+            <UpdatesBell count={badge} />
+            Updates
+            <UpdatesCount count={badge} />
+          </NavLink>
         </nav>
 
         <div className="sidebar-footer">

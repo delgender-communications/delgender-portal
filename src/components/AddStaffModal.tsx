@@ -6,6 +6,7 @@ import { FiX } from "react-icons/fi";
 import * as staffService from "../services/staffService";
 import { StaffRole } from "../services/authService";
 import type { Staff } from "../services/authService";
+import PhoneInput from "./PhoneInput";
 
 export default function AddStaffModal({
   onClose,
@@ -94,9 +95,9 @@ export default function AddStaffModal({
         </div>
         <div className="field">
           <label>Phone number</label>
-          <input
+          <PhoneInput
             value={form.phoneNumber}
-            onChange={(e) => set("phoneNumber", e.target.value)}
+            onChange={(v) => set("phoneNumber", v)}
           />
         </div>
         <div className="field">

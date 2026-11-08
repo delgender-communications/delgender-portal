@@ -13,6 +13,8 @@ import OutreachCompanyPage from "./pages/OutreachCompanyPage";
 import InvoicesPage from "./pages/InvoicesPage";
 import StaffPage from "./pages/StaffPage";
 import SettingsPage from "./pages/SettingsPage";
+import UpdatesPage from "./pages/UpdatesPage";
+import { NotificationsProvider } from "./context/NotificationsContext";
 
 export default function App() {
   return (
@@ -24,7 +26,9 @@ export default function App() {
         <Route
           element={
             <ProtectedRoute>
-              <Layout />
+              <NotificationsProvider>
+                <Layout />
+              </NotificationsProvider>
             </ProtectedRoute>
           }
         >
@@ -39,6 +43,7 @@ export default function App() {
           />
           <Route path="/outreach/:id/*" element={<OutreachCompanyPage />} />
           <Route path="/invoices" element={<InvoicesPage />} />
+          <Route path="/updates" element={<UpdatesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/staff" element={<StaffPage />} />
         </Route>

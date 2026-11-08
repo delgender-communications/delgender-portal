@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import type { Booking } from "../services/bookingService";
 import { meetingTypeLabel } from "../services/bookingService";
 import { formatDate, formatDateTime } from "../utils/format";
+import { formatPhone } from "../utils/phone";
 import StatusBadge from "./StatusBadge";
 import StaffAvatar from "./StaffAvatar";
 
@@ -50,7 +51,7 @@ export default function BookingDetailsModal({
           />
           <Detail label="Industry" value={booking.industry} />
           <Detail label="Email" value={booking.email} />
-          <Detail label="Phone" value={booking.phoneNumber} />
+          <Detail label="Phone" value={formatPhone(booking.phoneNumber)} />
         </div>
 
         <Detail label="Help with" value={booking.helpWith} block />

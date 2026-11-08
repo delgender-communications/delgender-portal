@@ -1,4 +1,6 @@
 // external
+import PhoneInput from "../PhoneInput";
+import { formatPhone, phoneHref } from "../../utils/phone";
 import { FiMail, FiPhone } from "react-icons/fi";
 
 // internal
@@ -63,15 +65,11 @@ export default function ContactCard({
           </div>
           <div className="field">
             <label htmlFor="oc-phone">Phone number</label>
-            <input
+            <PhoneInput
               id="oc-phone"
-              type="tel"
-              inputMode="tel"
-              autoComplete="off"
               value={values.phoneNumber}
-              onChange={(e) => onChange("phoneNumber", e.target.value)}
+              onChange={(v) => onChange("phoneNumber", v)}
               placeholder="Optional"
-              maxLength={30}
             />
           </div>
         </div>
@@ -80,7 +78,7 @@ export default function ContactCard({
   }
 
   const { contactName, email, phoneNumber } = values;
-  const phoneHref = phoneNumber.replace(/[^\d+]/g, "");
+  const phoneLink = phoneHref(phoneNumber);
 
   return (
     <section className="card oc-card oc-slot-contact">
@@ -91,7 +89,7 @@ export default function ContactCard({
       {(email || phoneNumber) && (
         <div className="oc-quick">
           {phoneNumber && (
-            <a className="btn btn-ghost" href={`tel:${phoneHref}`}>
+            <a className="btn btn-ghost" href={`tel:${phoneLink}`}>
               <FiPhone size={16} /> Call
             </a>
           )}
@@ -128,10 +126,13 @@ export default function ContactCard({
           <dd>
             {phoneNumber ? (
               <>
-                <a href={`tel:${phoneHref}`} className="oc-link">
-                  {phoneNumber}
+                <a href={`tel:${phoneLink}`} className="oc-link">
+                  {formatPhone(phoneNumber)}
                 </a>
-                <CopyButton value={phoneNumber} label="phone number" />
+                <CopyButton
+                  value={formatPhone(phoneNumber)}
+                  label="phone number"
+                />
               </>
             ) : (
               "—"

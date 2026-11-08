@@ -6,6 +6,7 @@ import { FiX } from "react-icons/fi";
 import * as clientService from "../services/clientsService";
 import { ClientStatus } from "../services/clientsService";
 import type { Client } from "../services/clientsService";
+import PhoneInput from "./PhoneInput";
 
 export default function AddClientModal({
   onClose,
@@ -118,10 +119,9 @@ export default function AddClientModal({
 
         <div className="field">
           <label>Phone number</label>
-          <input
+          <PhoneInput
             value={form.phoneNumber}
-            onChange={(e) => set("phoneNumber", e.target.value)}
-            placeholder="10 digits"
+            onChange={(v) => set("phoneNumber", v)}
           />
         </div>
 
