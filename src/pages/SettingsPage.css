@@ -39,29 +39,12 @@
 }
 
 .hero-avatar-img {
-  width: 148px;
-  height: 148px;
-  font-size: 46px;
+  width: 300px;
+  height: 300px;
+  font-size: 64px;
   box-shadow:
     0 0 0 3px var(--bg),
     0 0 0 4px var(--accent-border);
-}
-
-/* Just the camera, no circle behind it. It hangs off the bottom-right corner so
-   it doesn't sit on top of the picture, with a shadow so it reads on any colour. */
-.hero-avatar-edit {
-  position: absolute;
-  right: -14px;
-  bottom: -8px;
-  display: grid;
-  place-items: center;
-  color: var(--accent-strong);
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.85));
-  transition: transform 0.15s ease;
-}
-
-.hero-avatar:hover .hero-avatar-edit {
-  transform: scale(1.1);
 }
 
 .hero-name {

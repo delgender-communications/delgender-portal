@@ -9,7 +9,6 @@ import {
 } from "react";
 import {
   FiBell,
-  FiCamera,
   FiCheck,
   FiChevronDown,
   FiHelpCircle,
@@ -478,9 +477,6 @@ export default function SettingsPage() {
             ) : (
               initials(staff.name, staff.surname)
             )}
-          </span>
-          <span className="hero-avatar-edit">
-            <FiCamera size={30} />
           </span>
         </button>
         <input
