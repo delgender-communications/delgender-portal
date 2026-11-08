@@ -321,7 +321,7 @@ export default function SettingsPage() {
               className="btn btn-ghost btn-sm"
               onClick={() => startEditing(type)}
             >
-              Request change
+              Change
             </button>
           )
         )}
@@ -352,7 +352,7 @@ export default function SettingsPage() {
                 className="btn btn-primary btn-sm"
                 disabled={sending}
               >
-                {sending ? "Sending…" : "Send request"}
+                {sending ? "Requesting..." : "Request change"}
               </button>
               <button
                 type="button"
@@ -565,7 +565,7 @@ export default function SettingsPage() {
               <div className="info-value">{staff.staffId}</div>
             </div>
             <span className="text-small text-muted info-locked">
-              <FiLock size={13} /> Set by an admin
+              <FiLock size={13} /> Cannot be changed
             </span>
           </div>
 
