@@ -464,21 +464,32 @@ export default function SettingsPage() {
       <div className="settings-hero">
         <div className="settings-eyebrow">Settings</div>
 
-        <button
-          type="button"
-          className="hero-avatar"
-          onClick={() => fileInput.current?.click()}
-          disabled={uploading}
-          aria-label="Change profile picture"
-        >
-          <span className="avatar hero-avatar-img">
-            {staff.profilePictureUrl ? (
-              <img src={staff.profilePictureUrl} alt="" />
-            ) : (
-              initials(staff.name, staff.surname)
-            )}
-          </span>
-        </button>
+        <div className="hero-avatar-row">
+          <button
+            type="button"
+            className="hero-avatar"
+            onClick={() => fileInput.current?.click()}
+            disabled={uploading}
+            aria-label="Change profile picture"
+          >
+            <span className="avatar hero-avatar-img">
+              {staff.profilePictureUrl ? (
+                <img src={staff.profilePictureUrl} alt="" />
+              ) : (
+                initials(staff.name, staff.surname)
+              )}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => fileInput.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? "Uploading…" : "Change picture"}
+          </button>
+        </div>
         <input
           ref={fileInput}
           type="file"
@@ -493,14 +504,6 @@ export default function SettingsPage() {
         <div className="text-muted text-small">
           {staff.jobTitle} · {staff.role}
         </div>
-        <button
-          type="button"
-          className="btn btn-ghost btn-sm"
-          onClick={() => fileInput.current?.click()}
-          disabled={uploading}
-        >
-          {uploading ? "Uploading…" : "Change picture"}
-        </button>
         {uploadError && <div className="form-error-banner">{uploadError}</div>}
       </div>
 
