@@ -1,17 +1,17 @@
+/* Left-aligned, like the rest of the portal. */
 .settings-page {
   max-width: 720px;
-  margin: 0 auto;
   padding-bottom: 24px;
 }
 
-/* ---------- profile picture, top and centre ---------- */
+/* ---------- profile picture, top left ---------- */
 
 .settings-hero {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 4px;
-  text-align: center;
+  text-align: left;
   padding: 8px 0 28px;
 }
 
@@ -39,26 +39,24 @@
 }
 
 .hero-avatar-img {
-  width: 108px;
-  height: 108px;
-  font-size: 34px;
+  width: 148px;
+  height: 148px;
+  font-size: 46px;
   box-shadow:
     0 0 0 3px var(--bg),
     0 0 0 4px var(--accent-border);
 }
 
+/* Just the camera, no circle behind it. It hangs off the bottom-right corner so
+   it doesn't sit on top of the picture, with a shadow so it reads on any colour. */
 .hero-avatar-edit {
   position: absolute;
-  right: 2px;
-  bottom: 2px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  right: -14px;
+  bottom: -8px;
   display: grid;
   place-items: center;
-  color: #00181a;
-  background: var(--accent);
-  box-shadow: 0 0 0 3px var(--bg);
+  color: var(--accent-strong);
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.85));
   transition: transform 0.15s ease;
 }
 
@@ -78,7 +76,6 @@
 
 .settings-hero .form-error-banner {
   margin-top: 12px;
-  text-align: left;
 }
 
 /* ---------- the list ---------- */

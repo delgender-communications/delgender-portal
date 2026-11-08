@@ -461,7 +461,7 @@ export default function SettingsPage() {
 
   return (
     <div className="settings-page">
-      {/* ---------- profile picture, top and centre ---------- */}
+      {/* ---------- profile picture, top left ---------- */}
       <div className="settings-hero">
         <div className="settings-eyebrow">Settings</div>
 
@@ -480,7 +480,7 @@ export default function SettingsPage() {
             )}
           </span>
           <span className="hero-avatar-edit">
-            <FiCamera size={16} />
+            <FiCamera size={30} />
           </span>
         </button>
         <input
