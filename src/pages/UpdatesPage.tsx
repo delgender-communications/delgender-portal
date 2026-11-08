@@ -158,8 +158,8 @@ export default function UpdatesPage() {
         <div>
           <h1>Updates</h1>
           <p className="text-muted">
-            New leads, bookings and overdue invoices. Choose which ones show in
-            Settings.
+            New leads, bookings and overdue invoices. Choose what you get
+            updates for in settings.
           </p>
         </div>
         <button
