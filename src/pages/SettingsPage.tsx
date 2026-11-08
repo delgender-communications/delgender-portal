@@ -513,7 +513,7 @@ export default function SettingsPage() {
           id="account"
           icon={<FiUser size={18} />}
           title="Account information"
-          description="Your name, staff ID, email and phone number. Changes need an admin's approval."
+          description="Your personal information. For security, changes might need admin's approval."
           open={openSections.includes("account")}
           onToggle={() => toggleSection("account")}
         >
@@ -639,7 +639,7 @@ export default function SettingsPage() {
           id="security"
           icon={<FiShield size={18} />}
           title="Security"
-          description="Change your password and manage the devices that skip the email code."
+          description="Change your password and manage your trusted devices."
           open={openSections.includes("security")}
           onToggle={() => toggleSection("security")}
         >
@@ -696,7 +696,7 @@ export default function SettingsPage() {
 
           <div className="info-label">Trusted devices</div>
           <p className="text-muted text-small" style={{ marginBottom: 12 }}>
-            Devices that skip the email code. Revoking one signs that device
+            Trusted devices & signed-in devices. Revoking one signs that device
             out, including this one.
           </p>
 
