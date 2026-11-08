@@ -47,8 +47,8 @@
 }
 
 .hero-avatar .hero-avatar-img {
-  width: min(200px, 72vw);
-  height: min(200px, 72vw);
+  width: min(120px, 72vw);
+  height: min(120px, 72vw);
   font-size: 96px;
   box-shadow:
     0 0 0 3px var(--bg),
