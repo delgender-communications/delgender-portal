@@ -29,7 +29,6 @@ export default function AddStaffModal({
   const set = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  // Muted until every field has something in it.
   const canSubmit = [
     form.name,
     form.surname,

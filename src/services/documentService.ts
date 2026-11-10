@@ -76,7 +76,6 @@ export async function uploadDocument(
   if (description) form.append("description", description);
   try {
     const { data } = await api.post<TeamDocument>("/api/v1/documents", form, {
-      // Lets the browser set the multipart boundary itself.
       transformRequest: (payload, headers) => {
         if (headers) {
           delete headers["Content-Type"];
@@ -111,8 +110,6 @@ async function blobErrorMessage(error: unknown, fallback: string) {
   return extractErrorMessage(error, fallback);
 }
 
-// Goes through the API (with the login token) instead of linking straight to
-// the file host, so the browser always saves it as a file.
 export async function downloadDocument(
   id: number,
   fileName: string,

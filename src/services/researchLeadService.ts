@@ -49,10 +49,8 @@ export type ResearchLead = {
   case: ResearchLeadCase;
   score?: number | null;
   summary?: string | null;
-  // Set by the agent for companies a person should look into before deciding.
   needsResearch: boolean;
   researchReason?: string | null;
-  // What the site is built with, for example "Next.js · Vercel · JS-rendered".
   siteStack?: string | null;
   status: ResearchLeadStatus;
   dismissReason?: string | null;
@@ -75,10 +73,10 @@ export type ResearchLeadInput = {
   summary?: string | null;
 };
 
-// Links come from the research agent, so only ever turn real web addresses
-// into clickable links.
 export function safeWebUrl(value?: string | null): string | null {
-  if (!value) return null;
+  if (!value) {
+    return null;
+  }
   try {
     const url = new URL(value);
     return url.protocol === "http:" || url.protocol === "https:"
@@ -114,7 +112,6 @@ export type ResearchLeadCounts = {
   needsResearch: number;
 };
 
-// How many new leads each list holds, for the tab badges.
 export async function getResearchLeadCounts(): Promise<ResearchLeadCounts> {
   const { data } = await api.get<ResearchLeadCounts>(
     "/api/v1/research-leads/new-count",
@@ -127,8 +124,6 @@ export type ResearchLink = { label: string; url: string };
 const googleSearch = (query: string, extra = "") =>
   `https://www.google.com/search?q=${encodeURIComponent(query)}${extra}`;
 
-// Links a person can follow to look into a company the agent couldn't fully
-// judge. Built from the name and website, so nothing here depends on the agent.
 export function researchChecklist(lead: ResearchLead): ResearchLink[] {
   const name = lead.companyName;
   const quoted = `"${name}"`;
@@ -143,9 +138,7 @@ export function researchChecklist(lead: ResearchLead): ResearchLink[] {
         label: "Their news or blog",
         url: googleSearch(`site:${host} news OR blog OR press`),
       });
-    } catch {
-      // Not a usable address, so skip the site-specific link.
-    }
+    } catch {}
   }
 
   links.push(

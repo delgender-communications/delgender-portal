@@ -40,7 +40,6 @@ export default function RespondBookingModal({
   const isDecline = action === BookingStatus.Declined;
   const subject = defaultSubject(action);
 
-  // Confirming starts ready, because the email is already written. Declining needs a reason.
   const canSubmit =
     message.trim() !== "" && (!isDecline || reason.trim() !== "");
 

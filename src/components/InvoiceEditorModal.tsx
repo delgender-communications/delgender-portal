@@ -120,8 +120,6 @@ export default function InvoiceEditorModal({
     );
   const changed = JSON.stringify({ dueDate, notes, items }) !== startingPoint;
 
-  // A new invoice is ready once it has a customer, a due date and good lines. An
-  // existing one also needs something to have changed.
   const canSubmit =
     dueDate !== "" && itemsValid && (isEdit ? changed : customer !== null);
 

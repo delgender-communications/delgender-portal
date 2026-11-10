@@ -88,10 +88,7 @@ export async function uploadMyProfilePicture(file: File): Promise<Staff> {
   }
 }
 
-// ---------- change requests ----------
-// Staff can't edit their own name, email or phone number. They ask, and an admin
-// approves or declines. Nothing changes until it's approved.
-
+// staff cannot change their info directly, an admin must approve it
 export const ChangeRequestType = {
   Name: "Name",
   Email: "Email",
@@ -163,7 +160,7 @@ export async function cancelChangeRequest(id: number): Promise<void> {
   }
 }
 
-// Admin only.
+// admin only
 export async function getChangeRequests(
   status: ChangeRequestStatus = "Pending",
 ): Promise<ChangeRequest[]> {

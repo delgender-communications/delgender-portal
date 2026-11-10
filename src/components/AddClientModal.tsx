@@ -30,7 +30,6 @@ export default function AddClientModal({
   const set = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  // Muted until every required field has something in it. Job title is optional.
   const canSubmit = [
     form.companyName,
     form.fullName,

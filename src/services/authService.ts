@@ -142,7 +142,6 @@ export async function logout(): Promise<void> {
     try {
       await api.post("/api/v1/auth/logout", { refreshToken });
     } catch {
-      // already cleared locally - nothing more to do
     }
   }
 }

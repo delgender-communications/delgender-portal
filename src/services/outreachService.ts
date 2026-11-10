@@ -67,8 +67,6 @@ export interface OutreachLog {
   createdAt: string;
 }
 
-// What the research found, from the lead this company was accepted from.
-// Companies added by hand don't have it.
 export interface OutreachResearch {
   leadId: number;
   website?: string | null;
@@ -177,7 +175,6 @@ export async function updateOutreachNotes(
   }
 }
 
-// Lets the browser set the multipart boundary itself.
 const multipartConfig = {
   transformRequest: (
     payload: unknown,
@@ -249,8 +246,6 @@ async function blobErrorMessage(error: unknown, fallback: string) {
   return extractErrorMessage(error, fallback);
 }
 
-// Goes through the API (with the login token) instead of linking straight to
-// the file host, so the browser always saves it as a file.
 export async function downloadPitchDeck(
   id: number,
   fileName?: string | null,

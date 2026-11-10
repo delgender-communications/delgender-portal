@@ -61,11 +61,6 @@ function messageOf(err: unknown, fallback: string): string {
   return err instanceof Error ? err.message : fallback;
 }
 
-/**
- * One page for adding, viewing and editing a company. All three share the same
- * header, stepper and two-column grid, so moving between them only swaps the
- * contents of the cards and nothing jumps around.
- */
 export default function OutreachCompanyPage({
   creating = false,
 }: {
@@ -82,8 +77,6 @@ export default function OutreachCompanyPage({
   const backTo = nav?.from ?? "/outreach";
   const routeState = { from: backTo };
 
-  // A company handed over by the list (or by a save) paints straight away,
-  // then the page still fetches it so it is never stale.
   const seed = nav?.company && nav.company.id === id ? nav.company : null;
 
   const [company, setCompany] = useState<OutreachDetail | null>(seed);
@@ -134,7 +127,6 @@ export default function OutreachCompanyPage({
     return () => {
       active = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   useEffect(() => {
@@ -290,7 +282,6 @@ export default function OutreachCompanyPage({
       if (uploadErrors.length > 0) {
         const message = `${uploadErrors.join(" ")} The company itself was saved.`;
         if (!company) {
-          // Created, but a file failed: carry on in edit mode so it can be retried.
           navigate(`/outreach/${latest.id}/edit`, {
             replace: true,
             state: { from: backTo, company: latest },
@@ -430,8 +421,6 @@ export default function OutreachCompanyPage({
   const cancelTo = creating ? backTo : `/outreach/${id}`;
   const editHref = `/outreach/${id}/edit`;
 
-  // Adding needs a company name. Saving an existing company needs a change: to a field,
-  // a file or the notes.
   const canSave = creating ? form.companyName.trim() !== "" : unsaved;
 
   const primaryLabel = saving

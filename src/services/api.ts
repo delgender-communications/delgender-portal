@@ -8,7 +8,6 @@ const REMEMBER_KEY = "dgc_remember_me";
 const DEVICE_TOKEN_KEY = "dgc_device_token";
 const AUTH_EPOCH_KEY = "dgc_auth_epoch";
 
-// Bump together with backend AuthSession.Version to force one fresh sign-in.
 export const AUTH_EPOCH = "2";
 
 function getStore(): Storage {
@@ -74,7 +73,6 @@ function enforceAuthEpoch() {
       localStorage.getItem(ACCESS_TOKEN_KEY) ??
       sessionStorage.getItem(ACCESS_TOKEN_KEY);
 
-    // Already signed in on this session generation (portal shipped after the API).
     if (sessionVersion(access) === AUTH_EPOCH) {
       localStorage.setItem(AUTH_EPOCH_KEY, AUTH_EPOCH);
       return;
