@@ -23,6 +23,19 @@ const emptyItem: InvoiceItemInput = {
   discountAmount: 0,
 };
 
+// The line items the form starts with: the invoice's own, or one blank line.
+function startingItems(invoice?: Invoice | null): InvoiceItemInput[] {
+  return (
+    invoice?.items.map((i) => ({
+      description: i.description,
+      quantity: i.quantity,
+      unitPrice: i.unitPrice,
+      taxRate: i.taxRate,
+      discountAmount: i.discountAmount,
+    })) ?? [{ ...emptyItem }]
+  );
+}
+
 function lineTotal(item: InvoiceItemInput): number {
   const taxable = item.quantity * item.unitPrice - item.discountAmount;
   return taxable + taxable * (item.taxRate / 100);
@@ -42,14 +55,16 @@ export default function InvoiceEditorModal({
 
   const [dueDate, setDueDate] = useState(invoice?.dueDate?.slice(0, 10) ?? "");
   const [notes, setNotes] = useState(invoice?.notes ?? "");
-  const [items, setItems] = useState<InvoiceItemInput[]>(
-    invoice?.items.map((i) => ({
-      description: i.description,
-      quantity: i.quantity,
-      unitPrice: i.unitPrice,
-      taxRate: i.taxRate,
-      discountAmount: i.discountAmount,
-    })) ?? [{ ...emptyItem }],
+  const [items, setItems] = useState<InvoiceItemInput[]>(() =>
+    startingItems(invoice),
+  );
+  // What the form looked like when it opened, to tell whether anything has changed.
+  const [startingPoint] = useState(() =>
+    JSON.stringify({
+      dueDate: invoice?.dueDate?.slice(0, 10) ?? "",
+      notes: invoice?.notes ?? "",
+      items: startingItems(invoice),
+    }),
   );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -97,6 +112,18 @@ export default function InvoiceEditorModal({
     },
     { subtotal: 0, discount: 0, total: 0 },
   );
+
+  const itemsValid =
+    items.length > 0 &&
+    items.every(
+      (i) => i.description.trim() && i.unitPrice >= 0 && i.quantity > 0,
+    );
+  const changed = JSON.stringify({ dueDate, notes, items }) !== startingPoint;
+
+  // A new invoice is ready once it has a customer, a due date and good lines. An
+  // existing one also needs something to have changed.
+  const canSubmit =
+    dueDate !== "" && itemsValid && (isEdit ? changed : customer !== null);
 
   const handleSubmit = async () => {
     setError(null);
@@ -353,7 +380,7 @@ export default function InvoiceEditorModal({
           <button
             className="btn btn-primary"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || !canSubmit}
           >
             {loading ? "Saving…" : isEdit ? "Save changes" : "Create invoice"}
           </button>

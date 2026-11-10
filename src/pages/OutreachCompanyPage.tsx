@@ -430,6 +430,10 @@ export default function OutreachCompanyPage({
   const cancelTo = creating ? backTo : `/outreach/${id}`;
   const editHref = `/outreach/${id}/edit`;
 
+  // Adding needs a company name. Saving an existing company needs a change: to a field,
+  // a file or the notes.
+  const canSave = creating ? form.companyName.trim() !== "" : unsaved;
+
   const primaryLabel = saving
     ? "Saving…"
     : creating
@@ -660,7 +664,7 @@ export default function OutreachCompanyPage({
                     className="btn btn-primary"
                     type="button"
                     onClick={handleSave}
-                    disabled={saving}
+                    disabled={saving || !canSave}
                   >
                     {primaryLabel}
                   </button>
@@ -736,7 +740,7 @@ export default function OutreachCompanyPage({
                 className="btn btn-primary"
                 type="button"
                 onClick={handleSave}
-                disabled={saving}
+                disabled={saving || !canSave}
               >
                 {primaryLabel}
               </button>

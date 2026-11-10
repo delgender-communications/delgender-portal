@@ -40,6 +40,10 @@ export default function RespondBookingModal({
   const isDecline = action === BookingStatus.Declined;
   const subject = defaultSubject(action);
 
+  // Confirming starts ready, because the email is already written. Declining needs a reason.
+  const canSubmit =
+    message.trim() !== "" && (!isDecline || reason.trim() !== "");
+
   const handleSubmit = async () => {
     if (!message.trim()) {
       setError("Write the email that will be sent to the client.");
@@ -101,7 +105,8 @@ export default function RespondBookingModal({
               rows={2}
             />
             <span className="field-hint">
-              Kept on the booking record for internal reference. This won't be sent to the client.
+              Kept on the booking record for internal reference. This won't be
+              sent to the client.
             </span>
           </div>
         )}
@@ -138,7 +143,7 @@ export default function RespondBookingModal({
           <button
             className={`btn ${isDecline ? "btn-danger" : "btn-success"}`}
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || !canSubmit}
           >
             {loading
               ? "Sending…"

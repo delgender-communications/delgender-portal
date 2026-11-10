@@ -193,7 +193,7 @@ export default function OtpPage() {
           <button
             type="submit"
             className="btn btn-primary btn-block"
-            disabled={loading}
+            disabled={loading || digits.some((digit) => digit === "")}
           >
             {loading ? "Verifying…" : "Verify & sign in"}
           </button>

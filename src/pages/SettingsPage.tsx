@@ -35,7 +35,7 @@ import {
 import * as notificationService from "../services/notificationService";
 import type { NotificationPreferences } from "../services/notificationService";
 import { initials, formatDate, formatDateTime } from "../utils/format";
-import { formatPhone } from "../utils/phone";
+import { formatPhone, normalizePhone } from "../utils/phone";
 import PhoneInput from "../components/PhoneInput";
 import { Skeleton, SkeletonLabel } from "../components/Skeleton";
 import "./ListPage.css";
@@ -59,8 +59,6 @@ function deviceIcon(label?: string | null) {
   }
   return <FiHelpCircle size={18} />;
 }
-
-// ---------- accordion ----------
 
 function Section({
   id,
@@ -135,8 +133,6 @@ function Switch({
   );
 }
 
-// ---------- page ----------
-
 type SectionId = "account" | "security" | "preferences";
 
 export default function SettingsPage() {
@@ -151,6 +147,7 @@ export default function SettingsPage() {
   // profile picture
   const fileInput = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   // account information: change requests
@@ -195,13 +192,10 @@ export default function SettingsPage() {
       .then(setPrefs)
       .catch(() => setPrefsError("Couldn't load your preferences."));
 
-    // An admin may have approved a change since this was last loaded.
     void refreshStaff();
   }, [refreshStaff]);
 
   if (!staff) return null;
-
-  // ---------- profile picture ----------
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -221,7 +215,20 @@ export default function SettingsPage() {
     }
   };
 
-  // ---------- change requests ----------
+  const handleRemovePicture = async () => {
+    setRemoving(true);
+    setUploadError(null);
+    try {
+      await staffService.removeMyProfilePicture();
+      await refreshStaff();
+    } catch (err) {
+      setUploadError(
+        err instanceof Error ? err.message : "Couldn't remove that picture.",
+      );
+    } finally {
+      setRemoving(false);
+    }
+  };
 
   const pendingFor = (type: ChangeRequestType) =>
     requests.find((r) => r.type === type && r.status === "Pending");
@@ -236,6 +243,28 @@ export default function SettingsPage() {
       setValueForm("");
     }
   };
+
+  const requestChanged = (() => {
+    if (editing === ChangeRequestType.Name) {
+      const name = nameForm.name.trim();
+      const surname = nameForm.surname.trim();
+      return (
+        name !== "" &&
+        surname !== "" &&
+        (name !== staff.name || surname !== staff.surname)
+      );
+    }
+    if (editing === ChangeRequestType.Email) {
+      const next = valueForm.trim().toLowerCase();
+      return next !== "" && next !== staff.email.toLowerCase();
+    }
+    if (editing === ChangeRequestType.PhoneNumber) {
+      const next = normalizePhone(valueForm) ?? valueForm.replace(/\D/g, "");
+      const current = normalizePhone(staff.phoneNumber) ?? staff.phoneNumber;
+      return next !== "" && next !== current;
+    }
+    return false;
+  })();
 
   const stopEditing = () => {
     setEditing(null);
@@ -289,7 +318,6 @@ export default function SettingsPage() {
     .filter((r) => r.status === "Approved" || r.status === "Rejected")
     .slice(0, 4);
 
-  // One row: what it is now, and a way to ask for a change.
   const renderRow = (
     type: ChangeRequestType,
     label: string,
@@ -350,7 +378,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 className="btn btn-primary btn-sm"
-                disabled={sending}
+                disabled={sending || !requestChanged}
               >
                 {sending ? "Requesting..." : "Request change"}
               </button>
@@ -371,7 +399,8 @@ export default function SettingsPage() {
     );
   };
 
-  // ---------- password and devices ----------
+  const passwordReady =
+    currentPassword !== "" && newPassword !== "" && confirmPassword !== "";
 
   const handlePasswordSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -413,8 +442,6 @@ export default function SettingsPage() {
     setDevices((prev) => prev.filter((d) => d.id !== device.id));
   };
 
-  // ---------- preferences ----------
-
   const setPref = async (
     key: keyof NotificationPreferences,
     value: boolean,
@@ -423,7 +450,7 @@ export default function SettingsPage() {
 
     const before = prefs;
     const next = { ...prefs, [key]: value };
-    setPrefs(next); // shows straight away
+    setPrefs(next);
     setPrefsError(null);
     setPrefsSaved(false);
 
@@ -460,7 +487,7 @@ export default function SettingsPage() {
 
   return (
     <div className="settings-page">
-      {/* ---------- profile picture, top left ---------- */}
+      {/* ---------- profile picture ---------- */}
       <div className="settings-hero">
         <div className="settings-eyebrow">Settings</div>
 
@@ -481,14 +508,24 @@ export default function SettingsPage() {
             </span>
           </button>
 
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm"
-            onClick={() => fileInput.current?.click()}
-            disabled={uploading}
-          >
-            {uploading ? "Uploading…" : "Change picture"}
-          </button>
+          <div className="hero-avatar-actions">
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => fileInput.current?.click()}
+              disabled={uploading || removing}
+            >
+              {uploading ? "Uploading…" : "Change picture"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={handleRemovePicture}
+              disabled={!staff.profilePictureUrl || uploading || removing}
+            >
+              {removing ? "Removing…" : "Remove picture"}
+            </button>
+          </div>
         </div>
         <input
           ref={fileInput}
@@ -686,7 +723,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               className="btn btn-primary"
-              disabled={pwLoading}
+              disabled={pwLoading || !passwordReady}
             >
               {pwLoading ? "Saving…" : "Update password"}
             </button>

@@ -55,6 +55,20 @@ export async function updateStaff(
   }
 }
 
+export async function removeMyProfilePicture(): Promise<Staff> {
+  try {
+    const { data } = await api.delete<Staff>(
+      "/api/v1/staff/me/profile-picture",
+    );
+    return data;
+  } catch (error) {
+    throw new Error(
+      extractErrorMessage(error, "Couldn't remove that picture."),
+      { cause: error },
+    );
+  }
+}
+
 export async function uploadMyProfilePicture(file: File): Promise<Staff> {
   const formData = new FormData();
   formData.append("file", file);

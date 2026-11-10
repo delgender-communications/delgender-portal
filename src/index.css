@@ -146,6 +146,16 @@ a {
 .btn-primary:hover:not(:disabled) {
   background: var(--accent-strong);
 }
+/* Muted, not just faded: a save button that has nothing to save yet (or is busy)
+   goes grey, so the bright accent only shows when pressing it will do something. */
+.btn-primary:disabled,
+.btn-success:disabled,
+.btn-danger:disabled {
+  background: var(--card-bg-hover);
+  border-color: var(--border);
+  color: var(--really-muted);
+  opacity: 1;
+}
 
 .btn-ghost {
   background: transparent;

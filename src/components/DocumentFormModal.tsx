@@ -126,7 +126,7 @@ export default function DocumentFormModal({
           <button
             className="btn btn-primary"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || !file}
             type="button"
           >
             {loading ? "Uploading…" : "Add document"}

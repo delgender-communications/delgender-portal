@@ -188,7 +188,7 @@ export default function ResearchLeadFormModal({
           <button
             className="btn btn-primary"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || !form.companyName.trim()}
             type="button"
           >
             {loading ? "Adding…" : "Add lead"}

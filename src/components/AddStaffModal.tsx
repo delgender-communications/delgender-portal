@@ -29,6 +29,15 @@ export default function AddStaffModal({
   const set = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
+  // Muted until every field has something in it.
+  const canSubmit = [
+    form.name,
+    form.surname,
+    form.email,
+    form.phoneNumber,
+    form.jobTitle,
+  ].every((value) => value.trim() !== "");
+
   const handleSubmit = async () => {
     if (
       !form.name ||
@@ -140,7 +149,7 @@ export default function AddStaffModal({
           <button
             className="btn btn-primary"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || !canSubmit}
           >
             {loading ? "Adding…" : "Add staff member"}
           </button>

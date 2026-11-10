@@ -30,6 +30,15 @@ export default function AddClientModal({
   const set = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
 
+  // Muted until every required field has something in it. Job title is optional.
+  const canSubmit = [
+    form.companyName,
+    form.fullName,
+    form.email,
+    form.phoneNumber,
+    form.industry,
+  ].every((value) => value.trim() !== "");
+
   const handleSubmit = async () => {
     if (
       !form.companyName ||
@@ -167,7 +176,7 @@ export default function AddClientModal({
           <button
             className="btn btn-primary"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || !canSubmit}
           >
             {loading ? "Adding…" : "Add client"}
           </button>
