@@ -209,6 +209,17 @@ export default function NextStepCard({
           "We decided not to pursue this company."
         )}
       </p>
+
+      {/* Visible to everyone, so nobody has to ask why. */}
+      <div className="oc-reason">
+        <div className="oc-reason-label">Reason</div>
+        {company.cancelReason ? (
+          <p className="oc-reason-text">{company.cancelReason}</p>
+        ) : (
+          <p className="oc-reason-text is-empty">No reason was given.</p>
+        )}
+      </div>
+
       <div className="oc-btn-row" style={{ marginTop: 14 }}>
         <Link className="btn btn-ghost" to={editHref} state={editState}>
           <FiEdit2 size={15} /> Edit company

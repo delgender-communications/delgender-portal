@@ -7,7 +7,6 @@ import type {
 } from "../services/outreachService";
 import { formatDate } from "./format";
 
-/** The happy path a company moves along. Cancelled sits outside it. */
 export const PIPELINE: OutreachStatus[] = [
   OutreachStatus.Researching,
   OutreachStatus.Ready,
@@ -47,7 +46,6 @@ const STATUS_LOG_PATTERNS: Partial<Record<OutreachStatus, RegExp>> = {
     /^(changed the status from .+ to Cancelled|added this company as Cancelled)/,
 };
 
-/** The most recent activity entry that put the company into this status. */
 export function findStatusLog(
   logs: OutreachLog[],
   status: OutreachStatus,
@@ -75,14 +73,11 @@ export function toInput(
     phoneNumber: company.phoneNumber ?? null,
     notes: company.notes ?? null,
     status: company.status,
+    cancelReason: company.cancelReason ?? null,
     ...overrides,
   };
 }
 
-/**
- * Only the details call returns the research. Every other call (save, upload,
- * email) leaves it out, so carry it over instead of losing it.
- */
 export function mergeDetail(
   previous: OutreachDetail | null,
   next: OutreachDetail,

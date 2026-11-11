@@ -88,6 +88,7 @@ export interface OutreachDetail {
   phoneNumber?: string | null;
   notes?: string | null;
   status: OutreachStatus;
+  cancelReason?: string | null;
   pitchDeckFileName?: string | null;
   pitchDeckUrl?: string | null;
   pitchDeckUploadedAt?: string | null;
@@ -109,6 +110,7 @@ export interface OutreachInput {
   phoneNumber?: string | null;
   notes?: string | null;
   status: OutreachStatus;
+  cancelReason?: string | null;
 }
 
 export async function getOutreach(

@@ -45,6 +45,7 @@ type Draft = {
   email: string;
   phoneNumber: string;
   status: OutreachStatus;
+  cancelReason: string;
 };
 
 function draftFrom(company: OutreachDetail | null): Draft {
@@ -54,6 +55,7 @@ function draftFrom(company: OutreachDetail | null): Draft {
     email: company?.email ?? "",
     phoneNumber: company?.phoneNumber ?? "",
     status: company?.status ?? OutreachStatus.Researching,
+    cancelReason: company?.cancelReason ?? "",
   };
 }
 
@@ -142,8 +144,10 @@ export default function OutreachCompanyPage({
   const setField = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setOverrides((current) => ({ ...current, [key]: value }));
 
-  const fieldsDirty = (Object.keys(overrides) as (keyof Draft)[]).some(
-    (key) => overrides[key] !== base[key],
+  const fieldsDirty = (Object.keys(overrides) as (keyof Draft)[]).some((key) =>
+    key === "cancelReason" && form.status !== OutreachStatus.Cancelled
+      ? false
+      : overrides[key] !== base[key],
   );
   const notesDirty = notes !== (company?.notes ?? "");
   const filesSelected = Boolean(deckFile || reportFile);
@@ -207,6 +211,14 @@ export default function OutreachCompanyPage({
       return;
     }
     if (
+      form.status === OutreachStatus.Cancelled &&
+      form.cancelReason.trim() === "" &&
+      company?.status !== OutreachStatus.Cancelled
+    ) {
+      fail("Add a short reason for cancelling this company.");
+      return;
+    }
+    if (
       form.email.trim() &&
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
     ) {
@@ -241,6 +253,10 @@ export default function OutreachCompanyPage({
       phoneNumber: form.phoneNumber.trim() || null,
       notes: notes.trim() || null,
       status: form.status,
+      cancelReason:
+        form.status === OutreachStatus.Cancelled
+          ? form.cancelReason.trim() || null
+          : null,
     };
 
     try {
@@ -421,7 +437,17 @@ export default function OutreachCompanyPage({
   const cancelTo = creating ? backTo : `/outreach/${id}`;
   const editHref = `/outreach/${id}/edit`;
 
-  const canSave = creating ? form.companyName.trim() !== "" : unsaved;
+  // Adding needs a company name. Saving an existing company needs a change: to a field,
+  // a file or the notes.
+  // Cancelling needs a short reason. A company that was already cancelled before reasons
+  // existed can still be saved without one.
+  const reasonRequired =
+    form.status === OutreachStatus.Cancelled &&
+    company?.status !== OutreachStatus.Cancelled;
+  const reasonMissing = reasonRequired && form.cancelReason.trim() === "";
+
+  const canSave =
+    (creating ? form.companyName.trim() !== "" : unsaved) && !reasonMissing;
 
   const primaryLabel = saving
     ? "Saving…"
@@ -462,6 +488,9 @@ export default function OutreachCompanyPage({
               <StatusPicker
                 value={form.status}
                 onChange={(status) => setField("status", status)}
+                reason={form.cancelReason}
+                onReasonChange={(reason) => setField("cancelReason", reason)}
+                reasonRequired={reasonRequired}
               />
             ) : (
               company && (

@@ -809,3 +809,44 @@
 .row-link:hover {
   color: var(--accent);
 }
+
+.oc-reason {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--really-muted);
+}
+
+.oc-reason-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--really-muted);
+  margin-bottom: 2px;
+}
+
+.oc-reason-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.oc-reason-text.is-empty {
+  color: var(--really-muted);
+  font-style: italic;
+}
+
+.oc-reason-field {
+  margin: 14px 0 0;
+}
+
+.oc-reason-hint {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
