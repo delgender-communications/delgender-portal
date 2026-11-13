@@ -1,7 +1,9 @@
 // external
+import { useState } from "react";
 import PhoneInput from "../PhoneInput";
 import { formatPhone, phoneHref } from "../../utils/phone";
-import { FiMail, FiPhone } from "react-icons/fi";
+import { normalizeWebsite, websiteLabel } from "../../utils/outreachHelpers";
+import { FiGlobe, FiMail, FiPhone } from "react-icons/fi";
 
 // internal
 import CopyButton from "./CopyButton";
@@ -11,6 +13,7 @@ export type ContactValues = {
   contactName: string;
   email: string;
   phoneNumber: string;
+  website: string;
 };
 
 export default function ContactCard({
@@ -22,7 +25,14 @@ export default function ContactCard({
   values: ContactValues;
   onChange: (key: keyof ContactValues, value: string) => void;
 }) {
+  const [websiteTouched, setWebsiteTouched] = useState(false);
+
   if (editing) {
+    const websiteInvalid =
+      websiteTouched &&
+      values.website.trim() !== "" &&
+      normalizeWebsite(values.website) === null;
+
     return (
       <section className="card oc-card oc-slot-contact">
         <div className="oc-card-head">
@@ -72,6 +82,26 @@ export default function ContactCard({
               placeholder="Optional"
             />
           </div>
+          <div className="field full">
+            <label htmlFor="oc-website">Website</label>
+            <input
+              id="oc-website"
+              type="text"
+              inputMode="url"
+              autoComplete="off"
+              value={values.website}
+              onChange={(e) => onChange("website", e.target.value)}
+              onBlur={() => setWebsiteTouched(true)}
+              placeholder="Optional, e.g. example.com"
+              maxLength={300}
+              aria-invalid={websiteInvalid}
+            />
+            {websiteInvalid && (
+              <div className="field-error">
+                Enter a valid website, like example.com.
+              </div>
+            )}
+          </div>
         </div>
       </section>
     );
@@ -79,6 +109,7 @@ export default function ContactCard({
 
   const { contactName, email, phoneNumber } = values;
   const phoneLink = phoneHref(phoneNumber);
+  const websiteUrl = normalizeWebsite(values.website);
 
   return (
     <section className="card oc-card oc-slot-contact">
@@ -133,6 +164,27 @@ export default function ContactCard({
                   value={formatPhone(phoneNumber)}
                   label="phone number"
                 />
+              </>
+            ) : (
+              "—"
+            )}
+          </dd>
+        </div>
+        <div className="oc-fact">
+          <dt>Website</dt>
+          <dd>
+            {websiteUrl ? (
+              <>
+                <a
+                  href={websiteUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="oc-link"
+                >
+                  <FiGlobe size={13} style={{ marginRight: 6 }} />
+                  {websiteLabel(websiteUrl)}
+                </a>
+                <CopyButton value={websiteUrl} label="website" />
               </>
             ) : (
               "—"

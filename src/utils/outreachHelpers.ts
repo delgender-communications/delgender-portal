@@ -7,6 +7,7 @@ import type {
 } from "../services/outreachService";
 import { formatDate } from "./format";
 
+/** The happy path a company moves along. Cancelled sits outside it. */
 export const PIPELINE: OutreachStatus[] = [
   OutreachStatus.Researching,
   OutreachStatus.Ready,
@@ -74,13 +75,44 @@ export function toInput(
     notes: company.notes ?? null,
     status: company.status,
     cancelReason: company.cancelReason ?? null,
+    website: company.website ?? null,
     ...overrides,
   };
 }
 
+/**
+ * Only the details call returns the research. Every other call (save, upload,
+ * email) leaves it out, so carry it over instead of losing it.
+ */
 export function mergeDetail(
   previous: OutreachDetail | null,
   next: OutreachDetail,
 ): OutreachDetail {
   return { ...next, research: next.research ?? previous?.research ?? null };
+}
+
+// "example.com", "www.example.com/about" or a full address all become "https://...".
+// Returns null when it isn't a web address. Mirrors the server, so the form and the
+// server agree on what is valid.
+export function normalizeWebsite(
+  input: string | null | undefined,
+): string | null {
+  const value = (input ?? "").trim();
+  if (!value) return null;
+  try {
+    const url = new URL(value.includes("://") ? value : `https://${value}`);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null;
+    if (!url.hostname.includes(".")) return null;
+    return url.toString().replace(/\/$/, "");
+  } catch {
+    return null;
+  }
+}
+
+// How a website reads on screen: no "https://", no "www.", no trailing slash.
+export function websiteLabel(url: string): string {
+  return url
+    .replace(/^https?:\/\//i, "")
+    .replace(/^www\./i, "")
+    .replace(/\/$/, "");
 }
