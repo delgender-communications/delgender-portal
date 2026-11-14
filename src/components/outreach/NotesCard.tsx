@@ -1,6 +1,10 @@
 // external
 import type { KeyboardEvent } from "react";
 
+// internal
+import NoteEditors from "./NoteEditors";
+import type { NoteEditor } from "../../services/outreachService";
+
 const MAX_NOTES = 4000;
 
 export default function NotesCard({
@@ -11,6 +15,8 @@ export default function NotesCard({
   saved,
   onSave,
   saveWithForm = false,
+  editors,
+  hasSavedNotes,
 }: {
   notes: string;
   onChange: (value: string) => void;
@@ -18,8 +24,9 @@ export default function NotesCard({
   saving: boolean;
   saved: boolean;
   onSave: () => void;
-  /** Edit and add screens save the notes together with everything else. */
   saveWithForm?: boolean;
+  editors: NoteEditor[] | null;
+  hasSavedNotes: boolean;
 }) {
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
@@ -47,11 +54,13 @@ export default function NotesCard({
         aria-label="Notes"
       />
 
-      <div className="field-hint" style={{ marginTop: 8 }}>
-        {saveWithForm
-          ? "Saved together with the rest of your changes."
-          : "Notes can be edited by anyone."}
-      </div>
+      {editors && <NoteEditors editors={editors} hasNotes={hasSavedNotes} />}
+
+      {saveWithForm && (
+        <div className="field-hint" style={{ marginTop: 8 }}>
+          Saved together with the rest of your changes.
+        </div>
+      )}
 
       {!saveWithForm && (
         <div className="oc-notes-actions">

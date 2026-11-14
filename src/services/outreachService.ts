@@ -67,6 +67,16 @@ export interface OutreachLog {
   createdAt: string;
 }
 
+// Someone who has edited a company's notes. Most recent editor comes first.
+export interface NoteEditor {
+  staffId: number;
+  name: string;
+  profilePictureUrl?: string | null;
+  // How many saves changed the notes.
+  editCount: number;
+  lastEditedAt: string;
+}
+
 // What the research found, from the lead this company was accepted from.
 // Companies added by hand don't have it.
 export interface OutreachResearch {
@@ -94,6 +104,7 @@ export interface OutreachDetail {
   status: OutreachStatus;
   // Why it was cancelled. Only set while the status is Cancelled.
   cancelReason?: string | null;
+  noteEditors?: NoteEditor[];
   pitchDeckFileName?: string | null;
   pitchDeckUrl?: string | null;
   pitchDeckUploadedAt?: string | null;

@@ -560,6 +560,8 @@ export default function OutreachCompanyPage({
               saved={notesSaved}
               onSave={saveNotes}
               saveWithForm={editing}
+              editors={creating ? null : (company?.noteEditors ?? [])}
+              hasSavedNotes={Boolean(company?.notes?.trim())}
             />
           </div>
 

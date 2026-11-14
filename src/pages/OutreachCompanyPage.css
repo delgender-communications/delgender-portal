@@ -810,6 +810,9 @@
   color: var(--accent);
 }
 
+/* ---------- reason for cancelling ---------- */
+
+/* On the first card: a short quote under the sentence. */
 .oc-reason {
   margin-top: 12px;
   padding: 10px 12px;
@@ -840,6 +843,7 @@
   font-style: italic;
 }
 
+/* In the status form: the box that opens when Cancelled is picked. */
 .oc-reason-field {
   margin: 14px 0 0;
 }
@@ -849,4 +853,123 @@
   justify-content: space-between;
   gap: 12px;
   margin-top: 6px;
+}
+
+/* ---------- who has edited the notes ---------- */
+
+.oc-editors {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 10px;
+}
+
+.oc-editors-empty {
+  margin-top: 10px;
+}
+
+/* Overlapping heads, most recent editor first. */
+.oc-editor-stack {
+  display: flex;
+  align-items: center;
+}
+
+.oc-editor {
+  position: relative;
+  display: inline-flex;
+  margin-left: -9px;
+  border-radius: 50%;
+  /* A ring in the card's colour, so overlapping heads stay separate. */
+  box-shadow: 0 0 0 2px var(--card-bg);
+  outline: none;
+  cursor: default;
+  transition: transform 0.15s ease;
+}
+
+.oc-editor:first-child {
+  margin-left: 0;
+}
+
+/* The most recent editor is ringed in the accent colour. */
+.oc-editor.is-latest {
+  box-shadow:
+    0 0 0 2px var(--card-bg),
+    0 0 0 3.5px var(--accent);
+}
+
+.oc-editor:hover,
+.oc-editor:focus-visible {
+  z-index: 3;
+  transform: translateY(-2px);
+}
+
+.oc-editor:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--card-bg),
+    0 0 0 4px var(--accent-strong);
+}
+
+.oc-editor-more {
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  background: var(--card-bg-hover);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* The name appears above the head. Left-aligned, so it can't run off the card. */
+.oc-editor-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 11px;
+  border-radius: 9px;
+  background: var(--bg-raise);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
+}
+
+.oc-editor-tip strong {
+  font-weight: 700;
+}
+
+.oc-editor-tip span {
+  color: var(--muted);
+}
+
+.oc-editor:hover .oc-editor-tip,
+.oc-editor:focus-visible .oc-editor-tip {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.oc-editors-last {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oc-editor,
+  .oc-editor-tip {
+    transition: none;
+  }
 }
