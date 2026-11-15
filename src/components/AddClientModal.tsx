@@ -30,7 +30,7 @@ export default function AddClientModal({
 
   const set = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
-  
+
   const canSubmit = [
     form.companyName,
     form.fullName,
@@ -155,7 +155,7 @@ export default function AddClientModal({
             onChange={(e) => set("workSummary", e.target.value)}
             maxLength={1000}
             rows={3}
-            placeholder="e.g. Monthly social media management and a website refresh"
+            placeholder="The kind of work we do for them"
           />
           <div
             className="text-small text-muted"

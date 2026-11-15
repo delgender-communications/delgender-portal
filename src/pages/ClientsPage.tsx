@@ -56,7 +56,6 @@ export default function ClientsPage() {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, page]);
 
   const relationshipLabel = (client: Client): string => {
