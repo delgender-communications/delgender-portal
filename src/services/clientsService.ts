@@ -31,6 +31,8 @@ export interface CreateClientInput {
   industry: string;
   status: ClientStatus;
   contactPermission?: boolean;
+  // The kind of work we do for them. Kept for our records. Nothing shows it yet.
+  workSummary?: string;
 }
 
 export async function getClients(

@@ -22,6 +22,7 @@ export default function AddClientModal({
     email: "",
     phoneNumber: "",
     industry: "",
+    workSummary: "",
     status: ClientStatus.Pending as ClientStatus,
   });
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +30,7 @@ export default function AddClientModal({
 
   const set = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
-
+  
   const canSubmit = [
     form.companyName,
     form.fullName,
@@ -46,7 +47,9 @@ export default function AddClientModal({
       !form.phoneNumber ||
       !form.industry
     ) {
-      setError("Fill in every field except job title, which is optional.");
+      setError(
+        "Fill in every field except job title and the summary, which are optional.",
+      );
       return;
     }
 
@@ -60,6 +63,7 @@ export default function AddClientModal({
         email: form.email,
         phoneNumber: form.phoneNumber,
         industry: form.industry,
+        workSummary: form.workSummary.trim() || undefined,
         status: form.status,
       });
       onAdded(client);
@@ -139,6 +143,31 @@ export default function AddClientModal({
             value={form.industry}
             onChange={(e) => set("industry", e.target.value)}
           />
+        </div>
+
+        <div className="field">
+          <label htmlFor="client-work-summary">
+            Summary of the work (optional)
+          </label>
+          <textarea
+            id="client-work-summary"
+            value={form.workSummary}
+            onChange={(e) => set("workSummary", e.target.value)}
+            maxLength={1000}
+            rows={3}
+            placeholder="e.g. Monthly social media management and a website refresh"
+          />
+          <div
+            className="text-small text-muted"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 12,
+            }}
+          >
+            <span>For our records.</span>
+            <span>{form.workSummary.length}/1000</span>
+          </div>
         </div>
 
         <div className="field">
